@@ -36,13 +36,24 @@ int main(){
 	ajouter_etat_initial(a, 5);
 	ajouter_etat_final(a, 5);
 	print_automate(a);
-	
+
+	printf("\n==========Matrices(a)==============\n");	
 	Matrice ma = creer_matrice_transistions(a,'a');
-	Matrice ma2 = multiplication(ma,ma);
-	Matrice ma3 = multiplication(ma2,ma);
 	print_matrice(ma);
+	Matrice ma2 = multiplication(ma,ma);
 	print_matrice(ma2);
+	Matrice ma3 = multiplication(ma2,ma);
 	print_matrice(ma3);
+
+	printf("\n==========idempotent(ma)==============\n");	
+	int idem = est_idempotent(ma);
+	if(idem)
+	  printf("La matrice M(%s) est idempotente\n", get_mot(ma));
+	else
+	  printf("La matrice M(%s) n'est pas idempotente\n", get_mot(ma));
+
+
+
 	
 	return 0;
 }

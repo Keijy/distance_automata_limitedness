@@ -12,17 +12,20 @@
 
 #include <math.h>
 
-
+#define FALSE 1
+#define TRUE 0
+#define MAXMOT 10
 struct _Matrice {
   int** tab;
-  char* mot;
+  char mot[MAXMOT];
   int taille;
 };
 
 Matrice creer_matrice(char* mot, int taille){
+  printf("nom matrice : %s\n", mot);
   Matrice m = malloc(sizeof(*m));
   m->tab = malloc(taille * sizeof(int*));
-  m->mot = mot;
+  strcpy(m->mot, mot);
   m->taille = taille;
 
   int i;
@@ -41,6 +44,14 @@ void detruire_matrice(Matrice m){
     free(m->tab+i);
   free(m->tab);
   free(m);  
+}
+
+int get_taille(Matrice m){
+  return m->taille;
+}
+
+char* get_mot(Matrice m){
+  return m->mot;
 }
 
 Matrice creer_matrice_transistions(Automate* a, char l){
@@ -73,19 +84,26 @@ Matrice creer_matrice_transistions(Automate* a, char l){
 }
 
 void print_matrice(Matrice m){
+  printf("M(%s) :\n\t", m->mot);
   int i, j;
   for(i = 0; i<m->taille; i++){
     printf("|");
     for(j = 0; j<m->taille; j++){
       printf(" %d ", m->tab[i][j]);
     }
-    printf("|\n");
+    printf("|\n\t");
   }
     printf("\n");
 }
 
 int min(int n1,int n2){
   if(n1<n2)
+    return n1;
+  return n2;
+}
+
+int max(int n1,int n2){
+  if(n1>n2)
     return n1;
   return n2;
 }
@@ -99,7 +117,10 @@ Matrice multiplication(Matrice m1,Matrice m2){
     printf("sont pas de meme taille");
     return NULL;
   }
-  char* c=strcat(m1->mot,m2->mot);  
+  
+  char c[MAXMOT];
+  strcpy(c, m1->mot);
+  strcat(c, m2->mot);
   Matrice m3=creer_matrice(c,m1->taille);
   int i,j,k;
   for(i=0;i<m1->taille;i++)
@@ -107,8 +128,8 @@ Matrice multiplication(Matrice m1,Matrice m2){
       m3->tab[i][j]=-1;
     }  
   for(i=0;i<m1->taille;i++)
-    for(j=0;j<m1->taille;j++)
-      for(k=0;k<m1->taille;k++){
+    for(j=0;j<m1->taille;j++)   
+   for(k=0;k<m1->taille;k++){
 	if(m3->tab[i][j] == -1)
 	  m3->tab[i][j]= m1->tab[i][k]+m2->tab[k][j];
 	else
@@ -123,5 +144,26 @@ Matrice multiplication(Matrice m1,Matrice m2){
  */
 
 int est_idempotent(Matrice m){
-  return 0;
+  int cond1 = 1;
+  int cond2 = 0;
+
+  int i,j,k;
+  for(i = 0; i < m->taille; i++){
+    for(j = 0; j < m->taille; j++){
+      for(k = 0; k < m->taille; k++){
+	if(m->tab[i][j] > max(m->tab[i][k], m->tab[k][j]))
+	  cond1 = 0;
+	if(m->tab[i][j] == max(m->tab[i][k], m->tab[k][j]))
+	  cond2 = 1;
+      }
+      if(!(cond1 && cond2)) {
+	return FALSE;
+      }
+      else{
+	cond1 = 1; 
+	cond2 = 0;
+      }
+    }
+  }
+  return TRUE;
 }
