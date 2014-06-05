@@ -81,7 +81,40 @@ void print_matrice(Matrice m){
     }
     printf("|\n");
   }
-    printf("|\n");
+    printf("\n");
+}
+
+int min(int n1,int n2){
+  if(n1<n2)
+    return n1;
+  return n2;
+}
+
+int equal(Matrice m1,Matrice m2){
+  return m1->taille==m2->taille;
+}
+
+Matrice multiplication(Matrice m1,Matrice m2){
+  if(!equal(m1,m2)){
+    printf("sont pas de meme taille");
+    return NULL;
+  }
+  char* c=strcat(m1->mot,m2->mot);  
+  Matrice m3=creer_matrice(c,m1->taille);
+  int i,j,k;
+  for(i=0;i<m1->taille;i++)
+    for(j=0;j<m1->taille;j++){
+      m3->tab[i][j]=-1;
+    }  
+  for(i=0;i<m1->taille;i++)
+    for(j=0;j<m1->taille;j++)
+      for(k=0;k<m1->taille;k++){
+	if(m3->tab[i][j] == -1)
+	  m3->tab[i][j]= m1->tab[i][k]+m2->tab[k][j];
+	else
+	  m3->tab[i][j]=min(m1->tab[i][k]+m2->tab[k][j], m3->tab[i][j]);
+      }
+  return m3;
 }
 
 /* Condition 1 : pour tout i,j,k  e(i,j) <= max(e(i,k), e(k,j))
@@ -90,5 +123,5 @@ void print_matrice(Matrice m){
  */
 
 int est_idempotent(Matrice m){
-  
+  return 0;
 }

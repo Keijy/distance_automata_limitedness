@@ -38,8 +38,11 @@ int main(){
 	print_automate(a);
 	
 	Matrice ma = creer_matrice_transistions(a,'a');
-
+	Matrice ma2 = multiplication(ma,ma);
+	Matrice ma3 = multiplication(ma2,ma);
 	print_matrice(ma);
+	print_matrice(ma2);
+	print_matrice(ma3);
 	
 	return 0;
 }

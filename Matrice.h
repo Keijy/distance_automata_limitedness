@@ -8,5 +8,5 @@ Matrice creer_matrice(char* mot, int taille);
 void detruire_matrice(Matrice m);
 Matrice creer_matrice_transistions(Automate* a, char l);
 void print_matrice(Matrice m);
-
+Matrice multiplication(Matrice m1,Matrice m2);
 #endif
