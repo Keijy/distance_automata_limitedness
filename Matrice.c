@@ -262,4 +262,4 @@ Matrice eDieze(Matrice m){
     }
   return ma;
 }
-123
+
