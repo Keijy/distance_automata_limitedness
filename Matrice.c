@@ -94,6 +94,8 @@ int max(int n1,int n2){
 int equal(Matrice m1,Matrice m2){
   return m1->taille==m2->taille;
 }
+
+//multiplication de deux matrices en version "min"; 
 Matrice multiplication(Matrice m1,Matrice m2){
   if(!equal(m1,m2)){
     printf("sont pas de meme taille");
@@ -118,18 +120,95 @@ Matrice multiplication(Matrice m1,Matrice m2){
 }
 
 
-int anchored(int i,int j,Matrice m){
-  int k;
-  for(k=1;k<m->taille;k++){
-    if(m->tab[k][k]==0 && m->tab[k][k] <= m->tab[i][j] && m->tab[i][j] == max(m->tab[i][k],m->tab[k][j]))
-      return 1;
+//test si l'element de la matrice est stable(anchored); 
+int stable(int i,int j,Matrice m){ 
+  if(m->taille<=0){
+    printf("erreur\n");
+    return 0;
   }
-  return 0;
+  else{
+    int k;
+    for(k=1; k < m->taille; k++){
+      if(m->tab[k][k]==0 && m->tab[k][k] <= m->tab[i][j] && m->tab[i][j] == max(m->tab[i][k],m->tab[k][j]))
+	return 1;
+    }
+    return 0;
+  }
 }
-  
-int stable(int i,int j,Matrice m){
-  return m->tab[i][j]==1 && anchored(i,j,m)==0;
-}
-    
 
 
+//test si la matrice est stable;     
+int stableMatrice(Matrice m){
+  int i,j;
+  for(i=0;i<m->taille;i++)
+    for(j=0;j<m->taille;j++){
+      if(!stable(i,j,m))
+	return 0;
+    }
+  return 1;
+}
+
+
+//print la stabilite de la matrice;
+//le char ne print pas correctement;
+void printStableMatrice(Matrice m){
+  int i,j;
+  printf("Matrice: %s :\n",m->mot);
+  for(i=0;i<m->taille;i++)
+    for(j=0;j<m->taille;j++){
+      printf("position (%d,%d) est %s.\n",i,j,stable(i,j,m)?"stable":"non stable");
+    }
+  printf("matrice %s est %s.\n",m->mot,stableMatrice(m)?"stable":"non stable");
+  printf("matrice %s est dans %s.\n",m->mot,estMatriceR(m)?"R":"N");
+  printf("\n");
+}
+
+
+//test si la matrice est dans R;
+int estMatriceR(Matrice m){
+  int i,j;
+  for(i=0;i<m->taille;i++)
+    for(j=0;j<m->taille;j++){
+      if(m->tab[i][j]>=2)
+	return -1;
+    }
+  return 1;
+}
+
+//convertir une matrice dans N vers une matrice dans R;
+//c'est pas defini l'infini et omega
+Matrice matriceNaR(Matrice m){
+  if(estMatriceR(m))
+    return m;
+  Matrice ma=creer_matrice(m->mot,m->taille);
+  int i,j;
+  for(i=0;i<m->taille;i++)
+    for(j=0;j<m->taille;j++){
+      if(m->tab[i][j]==0)
+	ma->tab[i][j]=0;
+      if(m->tab[i][j]==1)
+	ma->tab[i][j]=1;
+      if(m->tab[i][j]>=2)//2 est omega;
+	ma->tab[i][j]=2;
+      if(m->tab[i][j]==33)//33 est infini;
+	ma->tab[i][j]=33;
+    }
+  return ma;
+}
+
+//convertir une matrice normale vers une matrice e#
+Matrice eDieze(Matrice m){
+  if(!estMatriceR(m)){
+    printf("erreur");
+    return NULL;
+  }
+  Matrice ma=creer_matrice(m->mot,m->taille);
+  int i,j;
+  for(i=0;i<m->taille;i++)
+    for(j=0;j<m->taille;j++){
+      if(m->tab[i][j]==1 && !stable(i,j,m))
+	ma->tab[i][j]=33;//33est omega;
+      ma->tab[i][j]=m->tab[i][j];
+    }
+  return ma;
+}

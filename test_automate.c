@@ -17,8 +17,8 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this Library.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-
+#include <stdio.h>
+#include <string.h>
 #include "automate.h"
 #include "Matrice.h"
 #include "outils.h"
@@ -29,31 +29,39 @@ int main(){
 	/* Automate * a2 = creer_automate(); */
 	
 	printf("\n==========automate(a)==============\n");
-	ajouter_transition(a, 5, 'a', 1, 5);
-	ajouter_transition(a, 9, 'a', 1, 5);
-	ajouter_transition(a, 5, 'a', 1, 9);
-	ajouter_transition(a, 9, 'a', 0, 9);
-	ajouter_etat_initial(a, 5);
-	ajouter_etat_final(a, 5);
+	ajouter_transition(a, 1, 'a', 1, 1);
+	ajouter_transition(a, 2, 'a', 1, 1);
+	ajouter_transition(a, 1, 'a', 1, 2);
+	ajouter_transition(a, 2, 'a', 0, 2);
+	ajouter_etat_initial(a, 1);
+	ajouter_etat_final(a, 1);
 	print_automate(a);
 
-	printf("\n==========Matrices(a)==============\n");	
 	Matrice ma = creer_matrice_transistions(a,'a');
-	print_matrice(ma);
 	Matrice ma2 = multiplication(ma,ma);
-	print_matrice(ma2);
 	Matrice ma3 = multiplication(ma2,ma);
+
+	printf("\n");
+
+	print_matrice(ma);
+	print_matrice(ma2);
 	print_matrice(ma3);
-
-	printf("\n==========idempotent(ma)==============\n");	
-	int idem = est_idempotent(ma);
-	if(idem)
-	  printf("La matrice M(%s) est idempotente\n", get_mot(ma));
-	else
-	  printf("La matrice M(%s) n'est pas idempotente\n", get_mot(ma));
-
-
-
 	
+	printf("\n");
+	
+	printStableMatrice(ma);
+	printStableMatrice(ma2);
+	printStableMatrice(ma3);
+
+	printf("\n");
+
+	Matrice ma4=matriceNaR(ma2);
+	print_matrice(ma4);
+	printf("\n");
+	printStableMatrice(ma4);
+	printf("\n");
+	Matrice ma5=eDieze(ma4);
+	printStableMatrice(ma5);
+
 	return 0;
 }
