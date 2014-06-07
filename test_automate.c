@@ -33,20 +33,28 @@ int main(){
 	ajouter_transition(a, 2, 'a', 1, 1);
 	ajouter_transition(a, 1, 'a', 1, 2);
 	ajouter_transition(a, 2, 'a', 0, 2);
+	ajouter_transition(a, 3, 'a', 3, 3);
+
 	ajouter_etat_initial(a, 1);
 	ajouter_etat_final(a, 1);
 	print_automate(a);
 
 	Matrice ma = creer_matrice_transistions(a,'a');
-	Matrice ma2 = multiplication(ma,ma);
-	Matrice ma3 = multiplication(ma2,ma);
+	Matrice ma2 = multiplication_in_MnR(ma,ma);
+	Matrice ma3 = multiplication_in_MnR(ma2,ma);
 
 	printf("\n");
 
-	print_matrice(ma);
-	print_matrice(ma2);
-	print_matrice(ma3);
-	
+	print_matrice_in_R(ma);
+	print_matrice_in_R(ma2);
+	print_matrice_in_R(ma3);
+
+	printf("\n==========idempotent(ma)==============\n");	
+	int idem = est_idempotent(ma);
+	if(idem)
+	  printf("La matrice M(%s) est idempotente\n", get_mot(ma));
+	else
+	  printf("La matrice M(%s) n'est pas idempotente\n", get_mot(ma));
 	printf("\n");
 	
 	printStableMatrice(ma);
@@ -56,7 +64,7 @@ int main(){
 	printf("\n");
 
 	Matrice ma4=matriceNaR(ma2);
-	print_matrice(ma4);
+	print_matrice_in_R(ma4);
 	printf("\n");
 	printStableMatrice(ma4);
 	printf("\n");

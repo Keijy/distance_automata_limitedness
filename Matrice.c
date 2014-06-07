@@ -15,6 +15,9 @@
 #define FALSE 1
 #define TRUE 0
 #define MAXMOT 10
+#define INFINI 3
+#define OMEGA 2
+
 struct _Matrice {
   int** tab;
   char mot[MAXMOT];
@@ -59,6 +62,13 @@ Matrice creer_matrice_transistions(Automate* a, char l){
   int n = taille_ensemble(get_etats(a));
   Matrice m = creer_matrice(&l, n);
 
+  int i, j;
+  for(i = 0; i < m->taille; i++){
+    for(j = 0; j< m->taille; j++){
+      m->tab[i][j] = INFINI;
+    }
+  } 
+
   Table_iterateur it1;
   Ensemble_iterateur it2;
   for ( it1 = premier_iterateur_table(get_transitions(a));
@@ -71,11 +81,12 @@ Matrice creer_matrice_transistions(Automate* a, char l){
   
     if(tmp == (int)l){
       for( it2 = premier_iterateur_ensemble(fins);
-	     ! iterateur_ensemble_est_vide(it2);
-	     it2 = iterateur_suivant_ensemble(it2)
-	     ){
-	    int f = get_element(it2);
-	    m->tab[get_origine_cle(cle)][f] = get_cout_cle(cle);
+	   ! iterateur_ensemble_est_vide(it2);
+	   it2 = iterateur_suivant_ensemble(it2)
+	   ){
+	int f = get_element(it2);
+	int cout = get_cout_cle(cle)==0 ? 0: 1;
+	m->tab[get_origine_cle(cle)][f] = cout;
       }
     }
   }
@@ -83,17 +94,22 @@ Matrice creer_matrice_transistions(Automate* a, char l){
   return m;
 }
 
-void print_matrice(Matrice m){
+void print_matrice_in_R(Matrice m){
   printf("M(%s) :\n\t", m->mot);
   int i, j;
   for(i = 0; i<m->taille; i++){
     printf("|");
     for(j = 0; j<m->taille; j++){
-      printf(" %d ", m->tab[i][j]);
+      switch(m->tab[i][j])
+	{
+	case OMEGA : printf(" %s ", "ω"); break;
+	case INFINI : printf(" %s ", "∞"); break;
+	default: printf(" %d ", m->tab[i][j]); break;
+	}
     }
     printf("|\n\t");
   }
-    printf("\n");
+  printf("\n");
 }
 
 int min(int n1,int n2){
@@ -114,7 +130,7 @@ int equal(Matrice m1,Matrice m2){
 
 
 //multiplication de deux matrices en version "min"; 
-Matrice multiplication(Matrice m1,Matrice m2){
+Matrice multiplication_in_MnR(Matrice m1,Matrice m2){
   if(!equal(m1,m2)){
     printf("sont pas de meme taille");
     return NULL;
@@ -131,11 +147,11 @@ Matrice multiplication(Matrice m1,Matrice m2){
     }  
   for(i=0;i<m1->taille;i++)
     for(j=0;j<m1->taille;j++)   
-   for(k=0;k<m1->taille;k++){
+      for(k=0;k<m1->taille;k++){
 	if(m3->tab[i][j] == -1)
-	  m3->tab[i][j]= m1->tab[i][k]+m2->tab[k][j];
+	  m3->tab[i][j]= max(m1->tab[i][k],m2->tab[k][j]);
 	else
-	  m3->tab[i][j]=min(m1->tab[i][k]+m2->tab[k][j], m3->tab[i][j]);
+	  m3->tab[i][j]=min(max(m1->tab[i][k],m2->tab[k][j]), m3->tab[i][j]);
       }
   return m3;
 }
@@ -177,12 +193,12 @@ int stable(int i,int j,Matrice m){
     return 0;
   }
   else{
-    int k;
-    for(k=1; k < m->taille; k++){
+    int k; 
+    for(k=0; k < m->taille; k++){
       if(m->tab[k][k]==0 && m->tab[k][k] <= m->tab[i][j] && m->tab[i][j] == max(m->tab[i][k],m->tab[k][j]))
-	return 1;
+	return TRUE;
     }
-    return 0;
+    return FALSE;
   }
 }
 
@@ -206,9 +222,9 @@ void printStableMatrice(Matrice m){
   printf("Matrice: %s :\n",m->mot);
   for(i=0;i<m->taille;i++)
     for(j=0;j<m->taille;j++){
-      printf("position (%d,%d) est %s.\n",i,j,stable(i,j,m)?"stable":"non stable");
+      printf("position (%d,%d) est %d.\n",i,j,stable(i,j,m));
     }
-  printf("matrice %s est %s.\n",m->mot,stableMatrice(m)?"stable":"non stable");
+  printf("matrice %s est %d.\n",m->mot,stableMatrice(m));
   printf("matrice %s est dans %s.\n",m->mot,estMatriceR(m)?"R":"N");
   printf("\n");
 }
@@ -219,8 +235,8 @@ int estMatriceR(Matrice m){
   int i,j;
   for(i=0;i<m->taille;i++)
     for(j=0;j<m->taille;j++){
-      if(m->tab[i][j]>=2)
-	return -1;
+      if(m->tab[i][j]>3)
+	return 0;
     }
   return 1;
 }
@@ -240,8 +256,8 @@ Matrice matriceNaR(Matrice m){
 	ma->tab[i][j]=1;
       if(m->tab[i][j]>=2)//2 est omega;
 	ma->tab[i][j]=2;
-      if(m->tab[i][j]==33)//33 est infini;
-	ma->tab[i][j]=33;
+      if(m->tab[i][j]==3)//33 est infini;
+	ma->tab[i][j]=3;
     }
   return ma;
 }
