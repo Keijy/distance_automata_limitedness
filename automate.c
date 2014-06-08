@@ -510,3 +510,22 @@ void ajouter_transitions( Automate * automate, Table * transitions ){
     }
   }
 }
+
+
+/* Automate creer_automate_des_matrices (Automate* a){ */
+/*   Automate * res = creer_automate(); */
+/*   Table * t_matrices = creer_table(NULL, NULL, NULL); */
+/*   ajouter_etat(a, 0); */
+
+/*   Ensemble_iterateur it1; */
+/*   for( it1 = premier_iterateur_ensemble( get_alphabet(a) ); */
+/*        ! iterateur_ensemble_est_vide(it1); */
+/*        it1 = iterateur_suivant_ensemble(it1) */
+/*        ){ */
+/*     int new_state = get_etat_libre(a); */
+/*     char lettre = get_element(it1); */
+/*     add_table(t_matrices, new_state, creer_matrice_transistions(a, lettre)); */
+/*     ajouter_transition(a, 0, lettre, new_state); */
+/*   } */
+
+/* } */
