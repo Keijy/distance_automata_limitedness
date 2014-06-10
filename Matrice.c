@@ -12,8 +12,8 @@
 
 #include <math.h>
 
-#define FALSE 1
-#define TRUE 0
+#define FALSE 0
+#define TRUE 1
 #define MAXMOT 10
 #define INFINI 3
 #define OMEGA 2
@@ -25,7 +25,6 @@ struct _Matrice {
 };
 
 Matrice creer_matrice(char* mot, int taille){
-  printf("nom matrice : %s\n", mot);
   Matrice m = malloc(sizeof(*m));
   m->tab = malloc(taille * sizeof(int*));
   strcpy(m->mot, mot);
@@ -112,26 +111,39 @@ void print_matrice_in_R(Matrice m){
   printf("\n");
 }
 
-int min(int n1,int n2){
+int min (int n1,int n2){
   if(n1<n2)
     return n1;
   return n2;
 }
 
-int max(int n1,int n2){
+int max (int n1,int n2){
   if(n1>n2)
     return n1;
   return n2;
 }
 
-int equal(Matrice m1,Matrice m2){
+int equal_size (Matrice m1,Matrice m2){
   return m1->taille==m2->taille;
+}
+
+int equal_matrice (Matrice m1, Matrice m2){
+  if (!equal_size(m1, m2))
+      return FALSE;
+  int i, j;
+  for(i = 0; i < m1->taille; i++){
+    for(j = 0; j < m1->taille; j++){
+      if (m1->tab[i][j] != m2->tab[i][j])
+	return FALSE;
+    }
+  }
+  return TRUE;
 }
 
 
 //multiplication de deux matrices en version "min"; 
 Matrice multiplication_in_MnR(Matrice m1,Matrice m2){
-  if(!equal(m1,m2)){
+  if(!equal_size(m1,m2)){
     printf("sont pas de meme taille");
     return NULL;
   }
@@ -162,27 +174,7 @@ Matrice multiplication_in_MnR(Matrice m1,Matrice m2){
  */
 
 int est_idempotent(Matrice m){
-  int cond1 = 1;
-  int cond2 = 0;
-  int i,j,k;
-  for(i = 0; i < m->taille; i++){
-    for(j = 0; j < m->taille; j++){
-      for(k = 0; k < m->taille; k++){
-	if(m->tab[i][j] > max(m->tab[i][k], m->tab[k][j]))
-	  cond1 = 0;
-	if(m->tab[i][j] == max(m->tab[i][k], m->tab[k][j]))
-	  cond2 = 1;
-      }
-      if(!(cond1 && cond2)) {
-	return FALSE;
-      }
-      else{
-	cond1 = 1; 
-	cond2 = 0;
-      }
-    }
-  }
-  return TRUE;
+  return equal_matrice(m, multiplication_in_MnR(m, m));
 }
 
 
@@ -204,14 +196,10 @@ int stable(int i,int j,Matrice m){
 
 
 //test si la matrice est stable;     
-int stableMatrice(Matrice m){
-  int i,j;
-  for(i=0;i<m->taille;i++)
-    for(j=0;j<m->taille;j++){
-      if(!stable(i,j,m))
-	return 0;
-    }
-  return 1;
+int est_stable_matrice(Matrice m){
+  Matrice md = creer_matrice_dieze(m);
+  int res = equal_matrice(m, md);
+  return res;
 }
 
 
@@ -222,9 +210,9 @@ void printStableMatrice(Matrice m){
   printf("Matrice: %s :\n",m->mot);
   for(i=0;i<m->taille;i++)
     for(j=0;j<m->taille;j++){
-      printf("position (%d,%d) est %d.\n",i,j,stable(i,j,m));
+      printf("position (%d,%d) est %s.\n",i,j,stable(i,j,m)?"stable":"non stable");
     }
-  printf("matrice %s est %d.\n",m->mot,stableMatrice(m));
+  printf("matrice %s est %d.\n",m->mot,est_stable_matrice(m));
   printf("matrice %s est dans %s.\n",m->mot,estMatriceR(m)?"R":"N");
   printf("\n");
 }
@@ -236,9 +224,9 @@ int estMatriceR(Matrice m){
   for(i=0;i<m->taille;i++)
     for(j=0;j<m->taille;j++){
       if(m->tab[i][j]>3)
-	return 0;
+	return FALSE;
     }
-  return 1;
+  return TRUE;
 }
 
 //convertir une matrice dans N vers une matrice dans R;
@@ -262,8 +250,8 @@ Matrice matriceNaR(Matrice m){
   return ma;
 }
 
-//convertir une matrice normale vers une matrice e#
-Matrice eDieze(Matrice m){
+//calculer la matrice #d'une matrice dans R
+Matrice creer_matrice_dieze(Matrice m){
   if(!estMatriceR(m)){
     printf("erreur");
     return NULL;
@@ -273,8 +261,9 @@ Matrice eDieze(Matrice m){
   for(i=0;i<m->taille;i++)
     for(j=0;j<m->taille;j++){
       if(m->tab[i][j]==1 && !stable(i,j,m))
-	ma->tab[i][j]=33;//33est omega;
-      ma->tab[i][j]=m->tab[i][j];
+	ma->tab[i][j]=OMEGA;
+      else
+	ma->tab[i][j]=m->tab[i][j];
     }
   return ma;
 }

@@ -56,20 +56,11 @@ int main(){
 	else
 	  printf("La matrice M(%s) n'est pas idempotente\n", get_mot(ma));
 	printf("\n");
+
+	printf("\n==========M(a)#==============\n");	
+	Matrice md = creer_matrice_dieze(ma);
+	print_matrice_in_R(md);
 	
-	printStableMatrice(ma);
-	printStableMatrice(ma2);
-	printStableMatrice(ma3);
-
-	printf("\n");
-
-	Matrice ma4=matriceNaR(ma2);
-	print_matrice_in_R(ma4);
-	printf("\n");
-	printStableMatrice(ma4);
-	printf("\n");
-	Matrice ma5=eDieze(ma4);
-	printStableMatrice(ma5);
 
 	return 0;
 }
