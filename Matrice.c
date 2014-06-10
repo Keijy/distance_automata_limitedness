@@ -9,25 +9,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h> 
-
 #include <math.h>
 
 #define FALSE 0
 #define TRUE 1
-#define MAXMOT 10
 #define INFINI 3
 #define OMEGA 2
 
 struct _Matrice {
   int** tab;
-  char mot[MAXMOT];
+  tree mot;
   int taille;
 };
 
-Matrice creer_matrice(char* mot, int taille){
+Matrice creer_matrice(int taille){
   Matrice m = malloc(sizeof(*m));
   m->tab = malloc(taille * sizeof(int*));
-  strcpy(m->mot, mot);
   m->taille = taille;
 
   int i;
@@ -52,14 +49,17 @@ int get_taille(Matrice m){
   return m->taille;
 }
 
-char* get_mot(Matrice m){
+tree get_mot(Matrice m){
   return m->mot;
 }
 
-Matrice creer_matrice_transistions(Automate* a, char l){
+Matrice creer_matrice_transistions(Automate* a, char c){
   a = creer_automate_etats_0_n(a);
-  int n = taille_ensemble(get_etats(a));
-  Matrice m = creer_matrice(&l, n);
+  int n = taille_ensemble(get_etats(a));	
+  Matrice m = creer_matrice(n);
+  tree t=tree_creat();
+  tree_set(t,'a');
+  m->mot = t;
 
   int i, j;
   for(i = 0; i < m->taille; i++){
@@ -78,7 +78,7 @@ Matrice creer_matrice_transistions(Automate* a, char l){
     Ensemble * fins = (Ensemble*) get_valeur(it1);
     int tmp = get_lettre_cle(cle);
   
-    if(tmp == (int)l){
+    if(tmp == (int)c){
       for( it2 = premier_iterateur_ensemble(fins);
 	   ! iterateur_ensemble_est_vide(it2);
 	   it2 = iterateur_suivant_ensemble(it2)
@@ -94,7 +94,10 @@ Matrice creer_matrice_transistions(Automate* a, char l){
 }
 
 void print_matrice_in_R(Matrice m){
-  printf("M(%s) :\n\t", m->mot);
+  printf("M(");
+  print_tree(m->mot);
+  printf(")");
+  printf("\t");
   int i, j;
   for(i = 0; i<m->taille; i++){
     printf("|");
@@ -148,10 +151,9 @@ Matrice multiplication_in_MnR(Matrice m1,Matrice m2){
     return NULL;
   }
   
-  char c[MAXMOT];
-  strcpy(c, m1->mot);
-  strcat(c, m2->mot);
-  Matrice m3=creer_matrice(c,m1->taille);
+  Matrice m3=creer_matrice(m1->taille);
+  m3->mot = tree_concatenation(m1->mot,m2->mot);
+
   int i,j,k;
   for(i=0;i<m1->taille;i++)
     for(j=0;j<m1->taille;j++){
@@ -203,19 +205,19 @@ int est_stable_matrice(Matrice m){
 }
 
 
-//print la stabilite de la matrice;
-//le char ne print pas correctement;
-void printStableMatrice(Matrice m){
-  int i,j;
-  printf("Matrice: %s :\n",m->mot);
-  for(i=0;i<m->taille;i++)
-    for(j=0;j<m->taille;j++){
-      printf("position (%d,%d) est %s.\n",i,j,stable(i,j,m)?"stable":"non stable");
-    }
-  printf("matrice %s est %d.\n",m->mot,est_stable_matrice(m));
-  printf("matrice %s est dans %s.\n",m->mot,estMatriceR(m)?"R":"N");
-  printf("\n");
-}
+/* print la stabilite de la matrice; */
+/* le char ne print pas correctement; */
+/* void printStableMatrice(Matrice m){ */
+/*   int i,j; */
+/*   printf("Matrice: %s :\n",m->mot); */
+/*   for(i=0;i<m->taille;i++) */
+/*     for(j=0;j<m->taille;j++){ */
+/*       printf("position (%d,%d) est %s.\n",i,j,stable(i,j,m)?"stable":"non stable"); */
+/*     } */
+/*   printf("matrice %s est %d.\n",m->mot,est_stable_matrice(m)); */
+/*   printf("matrice %s est dans %s.\n",m->mot,estMatriceR(m)?"R":"N"); */
+/*   printf("\n"); */
+/* } */
 
 
 //test si la matrice est dans R;
@@ -229,26 +231,26 @@ int estMatriceR(Matrice m){
   return TRUE;
 }
 
-//convertir une matrice dans N vers une matrice dans R;
-//c'est pas defini l'infini et omega
-Matrice matriceNaR(Matrice m){
-  if(estMatriceR(m))
-    return m;
-  Matrice ma=creer_matrice(m->mot,m->taille);
-  int i,j;
-  for(i=0;i<m->taille;i++)
-    for(j=0;j<m->taille;j++){
-      if(m->tab[i][j]==0)
-	ma->tab[i][j]=0;
-      if(m->tab[i][j]==1)
-	ma->tab[i][j]=1;
-      if(m->tab[i][j]>=2)//2 est omega;
-	ma->tab[i][j]=2;
-      if(m->tab[i][j]==3)//33 est infini;
-	ma->tab[i][j]=3;
-    }
-  return ma;
-}
+/* //convertir une matrice dans N vers une matrice dans R; */
+/* //c'est pas defini l'infini et omega */
+/* Matrice matriceNaR(Matrice m){ */
+/*   if(estMatriceR(m)) */
+/*     return m; */
+/*   Matrice ma=creer_matrice(m->mot,m->taille); */
+/*   int i,j; */
+/*   for(i=0;i<m->taille;i++) */
+/*     for(j=0;j<m->taille;j++){ */
+/*       if(m->tab[i][j]==0) */
+/* 	ma->tab[i][j]=0; */
+/*       if(m->tab[i][j]==1) */
+/* 	ma->tab[i][j]=1; */
+/*       if(m->tab[i][j]>=2)//2 est omega; */
+/* 	ma->tab[i][j]=2; */
+/*       if(m->tab[i][j]==3)//33 est infini; */
+/* 	ma->tab[i][j]=3; */
+/*     } */
+/*   return ma; */
+/* } */
 
 //calculer la matrice #d'une matrice dans R
 Matrice creer_matrice_dieze(Matrice m){
@@ -256,7 +258,9 @@ Matrice creer_matrice_dieze(Matrice m){
     printf("erreur");
     return NULL;
   }
-  Matrice ma=creer_matrice(m->mot,m->taille);
+  Matrice ma=creer_matrice(m->taille);
+  ma->mot = tree_diese(m->mot);
+  
   int i,j;
   for(i=0;i<m->taille;i++)
     for(j=0;j<m->taille;j++){

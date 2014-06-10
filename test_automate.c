@@ -22,7 +22,7 @@
 #include "automate.h"
 #include "Matrice.h"
 #include "outils.h"
-
+#include "arbresyntaxique.h"
 int main(){
 
 	Automate * a = creer_automate();
@@ -38,7 +38,8 @@ int main(){
 	ajouter_etat_initial(a, 1);
 	ajouter_etat_final(a, 1);
 	print_automate(a);
-
+	
+	
 	Matrice ma = creer_matrice_transistions(a,'a');
 	Matrice ma2 = multiplication_in_MnR(ma,ma);
 	Matrice ma3 = multiplication_in_MnR(ma2,ma);
@@ -51,10 +52,16 @@ int main(){
 
 	printf("\n==========idempotent(ma)==============\n");	
 	int idem = est_idempotent(ma);
-	if(idem)
-	  printf("La matrice M(%s) est idempotente\n", get_mot(ma));
-	else
-	  printf("La matrice M(%s) n'est pas idempotente\n", get_mot(ma));
+	if(idem){
+	  printf("La matrice M(");
+	  print_tree(get_mot(ma));
+	  printf(") est idempotente\n"); 
+	}
+	else{
+	  printf("La matrice M(");
+	  print_tree(get_mot(ma));
+	  printf(") n'est pas idempotente\n");
+	}
 	printf("\n");
 
 	printf("\n==========M(a)#==============\n");	
