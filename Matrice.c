@@ -58,7 +58,7 @@ Matrice creer_matrice_transistions(Automate* a, char c){
   int n = taille_ensemble(get_etats(a));	
   Matrice m = creer_matrice(n);
   tree t=tree_creat();
-  tree_set(t,'a');
+  tree_set(t, c);
   m->mot = t;
 
   int i, j;

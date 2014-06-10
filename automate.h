@@ -38,11 +38,13 @@
 typedef struct _Automate Automate;
 struct _Cle;
 typedef struct _Cle Cle;
+typedef struct _Matrice_Automate Mautomate;
 
 void print_cle( const Cle * a);
 int get_origine_cle(Cle* c);
 int get_lettre_cle(Cle* c);
 int get_cout_cle(Cle* c);
+int est_complet(Automate* a);
 
 /**
  * \brief Créer un automate vide, sans états, sans lettres et sans transitions.
@@ -51,6 +53,7 @@ int get_cout_cle(Cle* c);
  */
 Automate * creer_automate();
 Automate * creer_automate_etats_0_n (Automate* a);
+Mautomate * creer_automate_des_matrices (Automate* a);
 
 /**
  * \brief Détruit un automate.
@@ -457,5 +460,6 @@ Automate * creer_automate_du_melange( const Automate* automate1,  const Automate
  * \param automate L'automate à afficher
  */ 
 void print_automate( const Automate * automate );
+void print_mautomate(Mautomate* a, int n);
 
 #endif

@@ -23,6 +23,7 @@
 #include "Matrice.h"
 #include "outils.h"
 #include "arbresyntaxique.h"
+
 int main(){
 
 	Automate * a = creer_automate();
@@ -35,20 +36,29 @@ int main(){
 	ajouter_transition(a, 2, 'a', 0, 2);
 	ajouter_transition(a, 3, 'a', 3, 3);
 
+	ajouter_transition(a, 1, 'b', 1, 1);
+	ajouter_transition(a, 1, 'b', 1, 3);
+	ajouter_transition(a, 3, 'b', 1, 1);
+	ajouter_transition(a, 3, 'b', 0, 3);
+
 	ajouter_etat_initial(a, 1);
 	ajouter_etat_final(a, 1);
 	print_automate(a);
 	
 	
 	Matrice ma = creer_matrice_transistions(a,'a');
+	Matrice mb = creer_matrice_transistions(a,'b');
+
 	Matrice ma2 = multiplication_in_MnR(ma,ma);
 	Matrice ma3 = multiplication_in_MnR(ma2,ma);
+	Matrice mab = multiplication_in_MnR(ma,mb);
 
 	printf("\n");
 
 	print_matrice_in_R(ma);
 	print_matrice_in_R(ma2);
 	print_matrice_in_R(ma3);
+	print_matrice_in_R(mab);
 
 	printf("\n==========idempotent(ma)==============\n");	
 	int idem = est_idempotent(ma);
@@ -67,7 +77,10 @@ int main(){
 	printf("\n==========M(a)#==============\n");	
 	Matrice md = creer_matrice_dieze(ma);
 	print_matrice_in_R(md);
-	
+
+	printf("\n==========Automate des matrices==============\n");	
+	Mautomate * a2 = creer_automate_des_matrices(a);
+	print_mautomate(a2, 10);
 
 	return 0;
 }
