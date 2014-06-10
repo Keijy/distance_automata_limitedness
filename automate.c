@@ -22,6 +22,7 @@
 #include "table.h"
 #include "ensemble.h"
 #include "outils.h"
+#include "Matrice.h"
 
 #include <search.h>
 #include <stdio.h>
@@ -30,6 +31,9 @@
 #include <limits.h> 
 
 #include <math.h>
+
+#define FALSE 0
+#define TRUE 1
 
 struct _Automate {
   Ensemble * vide;
@@ -511,21 +515,100 @@ void ajouter_transitions( Automate * automate, Table * transitions ){
   }
 }
 
+/* renvoie TRUE si il existe une transition (etat, lettre)-> X 
+ * où X est un ensemble d'etat non vide de l'automate.
+ * renvoie FALSE sinon
+ */
+int est_transition_automate(Automate* a, int etat, int lettre){
+  Table_iterateur it;
+  int res = FALSE;
+  for( it = premier_iterateur_table( a->transitions );
+       (!iterateur_ensemble_est_vide( it ) || !res);
+       it = iterateur_suivant_ensemble( it )
+       ){
+    Cle * cle = (Cle*) get_cle( it );
+    if(cle->origine == lettre && cle->lettre == lettre)
+      res = TRUE;
+  }
+  return res;
+}
 
-/* Automate creer_automate_des_matrices (Automate* a){ */
-/*   Automate * res = creer_automate(); */
-/*   Table * t_matrices = creer_table(NULL, NULL, NULL); */
-/*   ajouter_etat(a, 0); */
+int est_complet(Automate* a){
+  Ensemble_iterateur it1, it2;
+ 
+  for( it1 = premier_iterateur_ensemble( get_etats( a ) );
+       ! iterateur_ensemble_est_vide( it1 );
+       it1 = iterateur_suivant_ensemble( it1 )
+       ){
+    int etat = get_element(it1);
+    for( it2 = premier_iterateur_ensemble( get_alphabet( a ) );
+	 ! iterateur_ensemble_est_vide( it2 );
+	 it2 = iterateur_suivant_ensemble( it2 )
+	 ){
+      int lettre = get_element(it2);
+      if(!est_transition_automate(a, etat, lettre))
+	return FALSE;
+    }
+  }
+  return TRUE;
+}
 
-/*   Ensemble_iterateur it1; */
-/*   for( it1 = premier_iterateur_ensemble( get_alphabet(a) ); */
-/*        ! iterateur_ensemble_est_vide(it1); */
-/*        it1 = iterateur_suivant_ensemble(it1) */
-/*        ){ */
-/*     int new_state = get_etat_libre(a); */
-/*     char lettre = get_element(it1); */
-/*     add_table(t_matrices, new_state, creer_matrice_transistions(a, lettre)); */
-/*     ajouter_transition(a, 0, lettre, new_state); */
-/*   } */
+Automate * creer_automate_des_matrices (Automate* a){
+  Automate * res = creer_automate();
+  Table * t_matrices = creer_table(NULL, NULL, NULL); //table qui, à une état, associe sa matrice dans R
+  Table * t_matrices_base = creer_table(NULL, NULL, NULL); //table qui, à une lettre associe sa matrice dans R
+  ajouter_etat(a, 0);
 
-/* } */
+  Ensemble_iterateur it1, it2;
+  Table_iterateur it3;
+  for( it1 = premier_iterateur_ensemble( get_alphabet(a) );
+       ! iterateur_ensemble_est_vide(it1);
+       it1 = iterateur_suivant_ensemble(it1)
+       ){
+    int new_state = get_etat_libre(a);
+    char lettre = get_element(it1);
+    Matrice tmp = creer_matrice_transistions(a, lettre);
+    add_table(t_matrices, (intptr_t)new_state, (intptr_t)tmp);
+    add_table(t_matrices_base, (intptr_t)lettre, (intptr_t)tmp);
+    ajouter_transition(a, 0, lettre, 0, new_state);
+  }
+
+  while (!est_complet(res)){
+    
+    for( it1 = premier_iterateur_ensemble( get_etats( a ) );
+	 ! iterateur_ensemble_est_vide( it1 );
+	 it1 = iterateur_suivant_ensemble( it1 )
+	 ){
+      int etat = get_element(it1);
+      for( it2 = premier_iterateur_ensemble( get_alphabet( a ) );
+	   ! iterateur_ensemble_est_vide( it2 );
+	   it2 = iterateur_suivant_ensemble( it2 )
+	   ){
+	int lettre = get_element(it2);
+	if(!est_transition_automate(a, etat, lettre)){
+	  Matrice m1 = (Matrice)get_valeur(lettre);
+	  Matrice m2 = (Matrice)get_valeur(etat);
+	  Matrice new_m = multiplication_in_MnR(m1, m2);
+
+	  int dest = get_etat_libre(a);
+	  int find = FALSE;
+	  for( it3 = premier_iterateur_table( t_matrices );
+	       (!iterateur_ensemble_est_vide( it3 ) || !find);
+	       it3 = iterateur_suivant_ensemble( it3 )
+	       ){
+	    int cle = (int) get_cle( it3 );
+	    Matrice m_tmp = (Matrice) get_valeur( it3 );
+	    if(equal_matrice(m_tmp, new_m)){
+	      find = TRUE;
+	      dest = cle;
+	    }
+	  }
+	  if(!find)
+	    add_table(t_matrices, (intptr_t)dest, (intptr_t)new_m);
+	  ajouter_transition(res, etat, lettre, 0, dest);
+	}
+      }      
+    }
+  }
+  return res;
+}
