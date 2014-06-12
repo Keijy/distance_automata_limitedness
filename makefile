@@ -8,7 +8,7 @@ all: $(TESTS)
 
 test_automate: test_automate.o libautomate.a
 
-libautomate.a: libautomate.a(automate.o table.o ensemble.o avl.o fifo.o outils.o Matrice.o)
+libautomate.a: libautomate.a(automate.o table.o ensemble.o avl.o fifo.o outils.o Matrice.o arbresyntaxique.o)
 
 clean:
 	-rm -rf *.o

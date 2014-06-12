@@ -53,6 +53,10 @@ tree get_mot(Matrice m){
   return m->mot;
 }
 
+int ** get_tableau(Matrice m){
+  return m->tab;
+}
+
 Matrice creer_matrice_transistions(Automate* a, char c){
   a = creer_automate_etats_0_n(a);
   int n = taille_ensemble(get_etats(a));	
@@ -97,7 +101,7 @@ void print_matrice_in_R(Matrice m){
   printf("M(");
   print_tree(m->mot);
   printf(")");
-  printf("\t");
+  printf("\n\t");
   int i, j;
   for(i = 0; i<m->taille; i++){
     printf("|");

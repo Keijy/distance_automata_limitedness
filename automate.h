@@ -461,5 +461,6 @@ Automate * creer_automate_du_melange( const Automate* automate1,  const Automate
  */ 
 void print_automate( const Automate * automate );
 void print_mautomate(Mautomate* a, int n);
+int est_limite(Automate * a);
 
 #endif

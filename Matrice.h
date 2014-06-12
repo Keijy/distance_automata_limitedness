@@ -22,6 +22,7 @@ Matrice creer_matrice_dieze(Matrice m);
 int est_idempotent(Matrice m);
 int get_taille(Matrice m);
 tree get_mot(Matrice m);
+int ** get_tableau(Matrice m);
 int equal_matrice(Matrice m1,Matrice m2);
 
 #endif

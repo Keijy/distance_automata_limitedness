@@ -29,20 +29,40 @@ int main(){
 	Automate * a = creer_automate();
 	/* Automate * a2 = creer_automate(); */
 	
+	/* printf("\n==========automate(a)==============\n"); */
+	/* ajouter_transition(a, 1, 'a', 1, 1); */
+	/* ajouter_transition(a, 2, 'a', 1, 1); */
+	/* ajouter_transition(a, 1, 'a', 1, 2); */
+	/* ajouter_transition(a, 2, 'a', 0, 2); */
+	/* ajouter_transition(a, 3, 'a', 3, 3); */
+
+	/* ajouter_transition(a, 1, 'b', 1, 1); */
+	/* ajouter_transition(a, 1, 'b', 1, 3); */
+	/* ajouter_transition(a, 3, 'b', 1, 1); */
+	/* ajouter_transition(a, 3, 'b', 0, 3); */
+
+	/* ajouter_etat_initial(a, 1); */
+	/* ajouter_etat_final(a, 1); */
+
 	printf("\n==========automate(a)==============\n");
+	ajouter_transition(a, 0, 'a', 0, 0);
+	ajouter_transition(a, 0, 'b', 0, 0);
+	ajouter_transition(a, 0, 'b', 0, 1);
 	ajouter_transition(a, 1, 'a', 1, 1);
-	ajouter_transition(a, 2, 'a', 1, 1);
-	ajouter_transition(a, 1, 'a', 1, 2);
+	ajouter_transition(a, 1, 'b', 0, 2);
 	ajouter_transition(a, 2, 'a', 0, 2);
-	ajouter_transition(a, 3, 'a', 3, 3);
+	ajouter_transition(a, 2, 'b', 0, 2);
+	ajouter_transition(a, 3, 'a', 0, 3);
+	ajouter_transition(a, 3, 'b', 1, 3);
 
-	ajouter_transition(a, 1, 'b', 1, 1);
-	ajouter_transition(a, 1, 'b', 1, 3);
-	ajouter_transition(a, 3, 'b', 1, 1);
-	ajouter_transition(a, 3, 'b', 0, 3);
-
+	ajouter_etat_initial(a, 0);
 	ajouter_etat_initial(a, 1);
+	ajouter_etat_initial(a, 3);
+
 	ajouter_etat_final(a, 1);
+	ajouter_etat_final(a, 2);
+	ajouter_etat_final(a, 3);
+
 	print_automate(a);
 	
 	
@@ -78,9 +98,18 @@ int main(){
 	Matrice md = creer_matrice_dieze(ma);
 	print_matrice_in_R(md);
 
-	printf("\n==========Automate des matrices==============\n");	
-	Mautomate * a2 = creer_automate_des_matrices(a);
-	print_mautomate(a2, 10);
+	/* printf("\n==========Automate des matrices==============\n"); */
+	/* Mautomate * a2 = creer_automate_des_matrices(a); */
+	/* print_mautomate(a2, 10); */
+
+	printf("\n==========L'automate a est-il limité ?==============\n");
+	//Matrice res = est_limite(a);
+	if(est_limite(a))
+	  printf("L'automate est limité.\n");
+	else{
+	  printf("L'automate n'est pas limité, voici la premiere matrice qui cause le cout infini :\n");
+	  //print_matrice_in_R(res);
+	}
 
 	return 0;
 }

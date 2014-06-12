@@ -32,6 +32,8 @@
 
 #include <math.h>
 
+#define INFINI 3
+#define OMEGA 2
 #define FALSE 0
 #define TRUE 1
 
@@ -53,6 +55,7 @@ struct _Cle {
 struct _Matrice_Automate{
   Automate * automate;
   Table* t_matrices;
+  Table* t_matrices_base;
 };
 
 int get_origine_cle(Cle* c){
@@ -99,6 +102,19 @@ int get_etat_libre(Automate * automate){
   return i;
 }
 
+int get_lettre_libre(Automate * automate){
+  int lettre;
+  for(lettre = 97; lettre < 123; lettre++){
+    if(!est_dans_l_ensemble(get_alphabet(automate), (intptr_t)lettre))
+      return lettre;
+  }
+  for(lettre = 65; lettre < 91; lettre++){
+    if(!est_dans_l_ensemble(get_alphabet(automate), (intptr_t)lettre))
+      return lettre;
+  }
+  return -1;
+}
+
 void supprimer_cle( Cle * cle ){
   xfree( cle );
 }
@@ -133,10 +149,11 @@ Automate * creer_automate(){
   return automate;
 }
 
-Mautomate* creer_mautomate(Automate* a, Table* t){
+Mautomate* creer_mautomate(Automate* a, Table* t, Table* t_base){
   Mautomate *m = malloc(sizeof(*m));
   m->automate = a;
   m->t_matrices = t;
+  m->t_matrices_base = t_base;
   return m;
 }
 
@@ -477,7 +494,7 @@ void print_mautomate(Mautomate* a, int n){
   int i;
   for( it = premier_iterateur_table( a->t_matrices ), i = 0;
        (!iterateur_ensemble_est_vide( it ) && i<n);
-       it = iterateur_suivant_ensemble( it )
+       it = iterateur_suivant_ensemble( it ), i++
        ){
     printf("Etat n°%d :\n", (int)get_cle(it));
     print_matrice_in_R((Matrice)get_valeur(it));
@@ -579,26 +596,13 @@ int est_complet(Automate* a){
   return TRUE;
 }
 
-Mautomate * creer_automate_des_matrices (Automate* a){
-  Automate * ma = creer_automate();
-  Table * t_matrices = creer_table(NULL, NULL, NULL); //table qui, à une état, associe sa matrice dans R
-  Table * t_matrices_base = creer_table(NULL, NULL, NULL); //table qui, à une lettre associe sa matrice dans R
-  ajouter_etat(ma, 0);
 
+void completer_automate_des_matrices(Mautomate * a){
+  Automate * ma = a->automate;
+  Table * t_matrices = a->t_matrices;
+  Table * t_matrices_base = a->t_matrices_base;
   Ensemble_iterateur it1, it2;
   Table_iterateur it3;
-  for( it1 = premier_iterateur_ensemble( get_alphabet(a) );
-       ! iterateur_ensemble_est_vide(it1);
-       it1 = iterateur_suivant_ensemble(it1)
-       ){
-    int new_state = get_etat_libre(ma);
-    char lettre = get_element(it1);
-    Matrice tmp = creer_matrice_transistions(a, lettre);
-    add_table(t_matrices, (intptr_t)new_state, (intptr_t)tmp);
-    add_table(t_matrices_base, (intptr_t)lettre, (intptr_t)tmp);
-    ajouter_transition(ma, 0, lettre, 0, new_state);
-  }
-
   while (!est_complet(ma)){
     for( it1 = premier_iterateur_ensemble( get_etats( ma ) );
 	 ! iterateur_ensemble_est_vide( it1 );
@@ -632,9 +636,89 @@ Mautomate * creer_automate_des_matrices (Automate* a){
 	    add_table(t_matrices, (intptr_t)dest, (intptr_t)new_m);
 	  ajouter_transition(ma, etat, lettre, 0, dest);
 	}
-      }      
+      }        
     }
   }
-
-  return creer_mautomate(ma, t_matrices);
 }
+
+void calculer_diese_mautotmate(Mautomate * ma){
+  Ensemble_iterateur it1;
+  for( it1 = premier_iterateur_ensemble( get_etats( ma->automate ) );
+       ! iterateur_ensemble_est_vide( it1 );
+       it1 = iterateur_suivant_ensemble( it1 )
+       ){
+    int etat = get_element(it1);
+    if(etat != 0){
+      Matrice m = (Matrice)get_valeur(trouver_table(ma->t_matrices, (intptr_t)etat));
+      if(est_idempotent(m)){
+	Matrice md = creer_matrice_dieze(m);
+	if(!equal_matrice(m, md)){
+	  int lettre = get_lettre_libre(ma->automate);
+	  int etat = get_etat_libre(ma->automate);
+	  add_table(ma->t_matrices, (intptr_t)etat, (intptr_t)md);
+	  add_table(ma->t_matrices_base, (intptr_t)lettre, (intptr_t)md);
+	  ajouter_transition(ma->automate, 0, lettre, 0, etat);
+	  completer_automate_des_matrices(ma);
+	}
+      }
+    }
+  }
+}
+
+Mautomate * creer_automate_des_matrices (Automate* a){
+  Automate * ma = creer_automate();
+  Table * t_matrices = creer_table(NULL, NULL, NULL); //table qui, à une état, associe sa matrice dans R
+  Table * t_matrices_base = creer_table(NULL, NULL, NULL); //table qui, à une lettre associe sa matrice dans R
+  ajouter_etat(ma, 0);
+
+  Ensemble_iterateur it1;
+  for( it1 = premier_iterateur_ensemble( get_alphabet(a) );
+       ! iterateur_ensemble_est_vide(it1);
+       it1 = iterateur_suivant_ensemble(it1)
+       ){
+    int new_state = get_etat_libre(ma);
+    char lettre = get_element(it1);
+    Matrice tmp = creer_matrice_transistions(a, lettre);
+    add_table(t_matrices, (intptr_t)new_state, (intptr_t)tmp);
+    add_table(t_matrices_base, (intptr_t)lettre, (intptr_t)tmp);
+    ajouter_transition(ma, 0, lettre, 0, new_state);
+  }
+
+  Mautomate * res = creer_mautomate(ma, t_matrices, t_matrices_base);
+  completer_automate_des_matrices(res);
+  calculer_diese_mautotmate(res);
+  
+  return res;
+}
+
+/* Renvoie NULL si l'automate est limité
+ * Renvoie la premiere matrice qui cause le cout infini sinon
+ */
+int est_limite(Automate * a){
+  Automate * abis = creer_automate_etats_0_n(a);
+  Mautomate * ma = creer_automate_des_matrices(abis);
+  Table_iterateur it1;
+  for( it1 = premier_iterateur_table( ma->t_matrices );
+       !iterateur_ensemble_est_vide( it1 );
+       it1 = iterateur_suivant_ensemble( it1 )
+       ){
+    Matrice m_tmp = (Matrice) get_valeur( it1 );
+    int** tab = get_tableau(m_tmp);
+    int min = -1;
+    int i, j;
+    for(i = 0; i < get_taille(m_tmp); i++){
+      for(j = 0; j < get_taille(m_tmp); j++){
+	if(est_dans_l_ensemble(a->initiaux, (intptr_t)j) && est_dans_l_ensemble(a->initiaux, (intptr_t)i)){
+	  printf("tab[%d][%d]\n", i, j);
+	  if(min == -1 || min > tab[i][j])
+	    min = tab[i][j];
+	}
+      }
+    }
+    if(min == OMEGA || min == INFINI){
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
