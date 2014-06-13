@@ -44,7 +44,6 @@ void print_cle( const Cle * a);
 int get_origine_cle(Cle* c);
 int get_lettre_cle(Cle* c);
 int get_cout_cle(Cle* c);
-int est_complet(Automate* a);
 
 /**
  * \brief Créer un automate vide, sans états, sans lettres et sans transitions.
@@ -52,8 +51,6 @@ int est_complet(Automate* a);
  * \return L'automate créé.
  */
 Automate * creer_automate();
-Automate * creer_automate_etats_0_n (Automate* a);
-Mautomate * creer_automate_des_matrices (Automate* a);
 
 /**
  * \brief Détruit un automate.
@@ -459,8 +456,28 @@ Automate * creer_automate_du_melange( const Automate* automate1,  const Automate
  *
  * \param automate L'automate à afficher
  */ 
+
+
 void print_automate( const Automate * automate );
-void print_mautomate(Mautomate* a, int n);
-int est_limite(Automate * a);
+void print_mautomate(Mautomate* a);
+
+/* Renvoie l'automate dont dont les états ont tous été renommé
+ * de 0 à n-1, où n est le nombre d'états de l'automate
+ */
+Automate * creer_automate_etats_0_n (Automate* a);
+
+//Renvoie TRUE si l'automate est complet, FALSE sinon
+int est_complet(Automate* a);
+
+/* Renvoie un "mautomate" qui contient un automate complet où chaque état 
+ * correspond à une matrice de transition pour tous les chemins menant à cet état.
+ * La structure contient également deux table qui permettent d'acceder au matrices rapidement.
+ */
+Mautomate * creer_automate_des_matrices (Automate* a);
+
+/* Renvoie NULL si l'automate est limité
+ * Renvoie la premiere matrice qui cause le cout infini sinon
+ */
+void * est_limite(Automate* a, Mautomate * ma);
 
 #endif

@@ -19,6 +19,7 @@
  */
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "automate.h"
 #include "Matrice.h"
 #include "outils.h"
@@ -43,7 +44,7 @@ int main(){
 
 	/* ajouter_etat_initial(a, 1); */
 	/* ajouter_etat_final(a, 1); */
-
+	
 	printf("\n==========automate(a)==============\n");
 	ajouter_transition(a, 0, 'a', 0, 0);
 	ajouter_transition(a, 0, 'b', 0, 0);
@@ -64,52 +65,23 @@ int main(){
 	ajouter_etat_final(a, 3);
 
 	print_automate(a);
-	
-	
-	Matrice ma = creer_matrice_transistions(a,'a');
-	Matrice mb = creer_matrice_transistions(a,'b');
-
-	Matrice ma2 = multiplication_in_MnR(ma,ma);
-	Matrice ma3 = multiplication_in_MnR(ma2,ma);
-	Matrice mab = multiplication_in_MnR(ma,mb);
-
 	printf("\n");
-
-	print_matrice_in_R(ma);
-	print_matrice_in_R(ma2);
-	print_matrice_in_R(ma3);
-	print_matrice_in_R(mab);
-
-	printf("\n==========idempotent(ma)==============\n");	
-	int idem = est_idempotent(ma);
-	if(idem){
-	  printf("La matrice M(");
-	  print_tree(get_mot(ma));
-	  printf(") est idempotente\n"); 
-	}
-	else{
-	  printf("La matrice M(");
-	  print_tree(get_mot(ma));
-	  printf(") n'est pas idempotente\n");
-	}
-	printf("\n");
-
-	printf("\n==========M(a)#==============\n");	
-	Matrice md = creer_matrice_dieze(ma);
-	print_matrice_in_R(md);
-
-	/* printf("\n==========Automate des matrices==============\n"); */
-	/* Mautomate * a2 = creer_automate_des_matrices(a); */
-	/* print_mautomate(a2, 10); */
 
 	printf("\n==========L'automate a est-il limité ?==============\n");
-	//Matrice res = est_limite(a);
-	if(est_limite(a))
+	printf("Calcul de l'automate des matrices...\n");
+	clock_t time = clock();
+	Mautomate * maut = creer_automate_des_matrices(a);
+	time= clock();
+	printf("Temps de calcul : %.3f seconde\n", (double)time/CLOCKS_PER_SEC);
+	printf("Calcul des limites...\n");
+	Matrice res = (Matrice)est_limite(a, maut);
+	if(res==NULL)
 	  printf("L'automate est limité.\n");
 	else{
 	  printf("L'automate n'est pas limité, voici la premiere matrice qui cause le cout infini :\n");
-	  //print_matrice_in_R(res);
+	  print_matrice_in_R(res);
 	}
-
+	print_mautomate(maut);
+	
 	return 0;
 }
