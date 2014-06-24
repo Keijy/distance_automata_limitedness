@@ -140,7 +140,7 @@ int main(){
   scanf("%c", &entree);
   if(entree == 'y'){
     system("dot -Tpng auto.gv -o auto.png");
-    system("firefox auto.png");
+    system("firefox auto.png >/dev/null 2>&1 &");
   }
 
   printf("\n");
