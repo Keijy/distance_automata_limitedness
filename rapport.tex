@@ -6,7 +6,8 @@
 \usepackage{verbatim}
 \usepackage{moreverb}
 \usepackage{hyperref}
-
+\usepackage{tikz}
+\usetikzlibrary{arrows,positioning,automata,shadows}
 
 \title{\textbf{Rapport Projet de stage : Limitedness}}
 \author{
@@ -16,18 +17,75 @@
 \begin{document}
 \maketitle
 
+\newcommand{\Aut}{\mathcal{A}}
+
 \tableofcontents
 \chapter*{Introduction au problème}
-Durant ce stage, nous nous sommes interessé aux automates à distance (distance automata). Ce sont des automates finis, non déterministes, auxquels on associe des coûts pour chaque transition. On associe donc également un coût pour chaque mot accepté par l'automate. Le coût d'un mot m correspond au minimum des coûts de tous les chemins de l'automate reconnaissant m.\\
-Le problème de limitedness est de savoir si il existe une majoration des coûts des mots accepté par un automate à distance.\\
-Ce type d'automate et son problème de limitedness a été présenté par Hashiguchi dans CITATION pour la résolution d'une autre célèbre problématique, la question de hauteur d'étoile (star height problem). Le travail d'Hashiguchi étant considéré comme difficile à comprendre, d'autre chercheurs, comme Simon \cite{Simon:Semigroups-Matrices-over-Tropical:1994:a} ou Leung \cite{Leung&Podolskiy:limitedness-problem-distance-automata::2004:a}, ont étudié le problème et apporté d'autres solutions sur le sujet.\\\\
+Durant ce stage, nous avons voulu approfondir nos connaissances dans une branche de l'informatique théorique que nous avons commencé à étudier lors de ce dernier semestre de licence. Ce sont donc les automates et les interrogations qui gravitent autour de cette structure qui nous ont intéressé.\\
+Un automate est une machine abstraite qui va accepter ou rejeter des mots dans un alphabet fini. Plus formellement, un automate est définit, par 5 ensembles, de la façon suivante : \\
+\begin{center}
+ $ \Aut = \{ A, Q, I, F, \delta \} $     avec,
+ \end{center}
+$A$ : l’alphabet\\
+$Q$ : l'ensemble des états\\
+$I$ : l'ensemble des états initiaux\\
+$F$ : l'ensemble des états finaux\\
+$\delta$ : l'ensemble des transitions\\
+
+Pour représenter graphiquement un automate, on utilise un graphe orienté dans lequel les sommets du graphe sont les états de l'automate et où chaque arrête correspond à une transition de l'automate. Un mot est accepté par un automate s'il existe une chemin dans celui-ci, partant d'un état initial et allant jusqu'à un état final en lisant les lettres une par une. Un tel chemin est appelé \textit{chemin acceptant} et l'ensemble des mots accepté par un automate est appelé \textit{Langage}, on le note $\mathcal{L}(\Aut)$.\\
+
+Ainsi les automates permettent de caractériser certains langage, par exemple, les automate finis définissent ce qu'on appelle les langages rationnels ou encore les automates à pile qui permettent de définir les langages algébriques (voir \cite{Elements-d-algorithmique}) et qui sont grandement utiliser en analyse syntaxique.
+\\
+
+Voici l'exemple d'un automate très basique qui accepte tous les mots sur l'alphabet $\{a, b\}$ qui comportent un nombre pair de $a$.\\
+Cet automate permet d'introduire une notion élémentaire de la théorie des automates : le déterminisme. Un automate est déterministe si et seulement si il possède un unique état initial et que pour état, il existe au plus, une transition par lettre de l'alphabet. L'automate ci-dessous est donc déterministe.
+
+\[\Aut = \left(
+\begin{array}{rcr}
+			A= \{a, b\},\;
+			Q=\{1, 2\},\; 
+			I=\{1\},\; 
+			F=\{1\},\; 
+			\delta=
+				\left\{
+					\begin{array}{rcr}
+						(1,a) & \rightarrow & 2 \\
+						(2,a) & \rightarrow & 1 \\
+						(1,b) & \rightarrow & 1 \\
+						(2,b) & \rightarrow & 2 \\
+					\end{array}
+				\right.
+\end{array}
+\right)\]
+
+\begin{center}
+\begin{tikzpicture}[shorten >=1pt, node distance=2cm, on grid, auto]
+   \node[state, initial, accepting]			 (A)	                      {1};
+   \node[state]         						 (B)   [right=of A]           {2};
+ 
+  \path[->]
+             (A)  edge [bend right]   node  [swap]   {a}   (B)
+                  edge [loop above]   node           {b}   ()
+             (B)  edge [loop above]   node           {b}   ()
+                  edge                node           {a}   (A);
+\end{tikzpicture}
+\end{center}
+
+La théorie des automates et des langages est un domaine très actif depuis le milieu du 20e siècle et il existe aujourd'hui plusieurs modèles d'automate nés pour répondre à certaines problématiques. C'est un de ces modèle particulier qui nous a intéressé lors de ce stage : les automates à distance (distance automata).
+\\
+Ce sont des automates finis, non déterministes, dans lesquels les transitions sont pondérées. On associe donc un coût pour chaque mot accepté par l'automate. Le coût d'un mot correspond au minimum des coûts de tous ses chemins acceptants dans l'automate .\\
+Ce type d'automate a été présenté par Hashiguchi dans \cite{Hashiguchi:Limitedness-theorem-on-finite-automata-with-distance-functions:1982:a} pour la résolution d'une célèbre problématique, la question de hauteur d'étoile (star height problem) \cite{Eggan:Transition-graphs-and-the-star-height-of-regular-events:1963:a}. Mais les automates à distance posent également un autre problème, celui limitedness.\\
+Le problème de limitedness est très simple à comprendre, il est simplement question de savoir si il existe une majoration des coûts des mots acceptés par un automate à distance.\\
+
+Le travail d'Hashiguchi étant considéré comme difficile à comprendre, d'autre chercheurs, comme Simon \cite{Simon:Semigroups-Matrices-over-Tropical:1994:a} ou Leung \cite{Leung&Podolskiy:limitedness-problem-distance-automata::2004:a}, ont étudié le problème et apporté d'autres solutions sur le sujet.\\
+
 Notre travail a donc consisté, dans un premier temps, à lire et comprendre les différents travaux de ces chercheurs afin d'être capable d'implémenter un algorithme permettant la détection de limite dans un automate à distance.
 
 \part{Mise en place théorique de l'algorithme}
 
-Le papier dont nous nous somme le plus servit afin de comprendre et résoudre le problème de limitedness, est \cite{Simon:Semigroups-Matrices-over-Tropical:1994:a} mais il nous a d'abord fallu comprendre la complexité du problème.
-
 \chapter{De l'automate aux matrices}
+
+Le papier dont nous nous somme le plus servit afin de comprendre et résoudre le problème de limitedness, est \cite{Simon:Semigroups-Matrices-over-Tropical:1994:a} mais il nous a d'abord fallu comprendre la complexité du problème.
 
 \chapter{Matrices idempotentes}
 
@@ -37,7 +95,7 @@ Le papier dont nous nous somme le plus servit afin de comprendre et résoudre le
 
 \chapter{Réutilisation du programme d'Adrien Boussicault}
 
-(présentation des différents modules et fonctions disponible + détails des ajouts pour la gestion des cout, de l'affichage et autres fonctions additionnelles que nous avons ajouté)
+(présentation des différents modules et fonctions disponible + détails des ajouts pour la gestion des coût, de l'affichage et autres fonctions additionnelles que nous avons ajouté)
 
 \chapter{Création et manipulation des matrice}
 
