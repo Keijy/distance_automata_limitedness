@@ -207,6 +207,7 @@ typedef struct {
 
 void print_association( const intptr_t cle, intptr_t valeur, void* data  ){
 	data_print_table_t* d = (data_print_table_t*) data;
+	printf("\t ");
 	if( d->print_cle ){
 		d->print_cle( cle );
 	}else{
@@ -218,7 +219,7 @@ void print_association( const intptr_t cle, intptr_t valeur, void* data  ){
 	}else{
 		printf("%ld", valeur );
 	}
-	printf(", ");
+	printf("\n ");
 }
 
 void print_table(
@@ -230,9 +231,9 @@ void print_table(
 	data.print_cle = print_cle;
 	data.print_valeur = print_valeur;
 	
-	printf( "{ ");
+	printf( "\n{\n ");
 	pour_toute_cle_valeur_table( table, print_association, &data );
-	printf( " }%s", texte_de_fin );
+	printf( " \n}%s", texte_de_fin );
 }
 
 Table_iterateur trouver_table( const Table* table, intptr_t cle ){

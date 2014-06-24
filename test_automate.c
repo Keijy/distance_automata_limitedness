@@ -100,6 +100,7 @@ int main(){
   Automate * a = creer_automate();
   /* Automate * a2 = creer_automate(); */
 	
+<<<<<<< HEAD
   /* printf("\n==========automate(a)==============\n"); */
   /* ajouter_transition(a, 1, 'a', 1, 1); */
   /* ajouter_transition(a, 2, 'a', 1, 1); */
@@ -155,6 +156,62 @@ int main(){
   print_mautomate(maut);
 	
   return 0;
+=======
+	/* printf("\n==========automate(a)==============\n"); */
+	/* ajouter_transition(a, 1, 'a', 1, 1); */
+	/* ajouter_transition(a, 2, 'a', 1, 1); */
+	/* ajouter_transition(a, 1, 'a', 1, 2); */
+	/* ajouter_transition(a, 2, 'a', 0, 2); */
+	/* ajouter_transition(a, 3, 'a', 3, 3); */
+
+	/* ajouter_transition(a, 1, 'b', 1, 1); */
+	/* ajouter_transition(a, 1, 'b', 1, 3); */
+	/* ajouter_transition(a, 3, 'b', 1, 1); */
+	/* ajouter_transition(a, 3, 'b', 0, 3); */
+
+	/* ajouter_etat_initial(a, 1); */
+	/* ajouter_etat_final(a, 1); */
+	
+	printf("\n==========automate(a)==============\n");
+	ajouter_transition(a, 0, 'a', 0, 0);
+	ajouter_transition(a, 0, 'b', 0, 0);
+	ajouter_transition(a, 0, 'b', 0, 1);
+	ajouter_transition(a, 1, 'a', 1, 1);
+	ajouter_transition(a, 1, 'b', 0, 2);
+	ajouter_transition(a, 2, 'a', 0, 2);
+	ajouter_transition(a, 2, 'b', 0, 2);
+	ajouter_transition(a, 3, 'a', 0, 3);
+	ajouter_transition(a, 3, 'b', 1, 3);
+
+	ajouter_etat_initial(a, 0);
+	ajouter_etat_initial(a, 1);
+	ajouter_etat_initial(a, 3);
+
+	ajouter_etat_final(a, 1);
+	ajouter_etat_final(a, 2);
+	ajouter_etat_final(a, 3);
+
+	print_automate(a);
+	printf("\n");
+
+	printf("\n==========L'automate a est-il limité ?==============\n");
+	printf("Calcul de l'automate des matrices...\n");
+	clock_t time = clock();
+	Mautomate * maut = creer_automate_des_matrices(a);
+	time= clock();
+	printf("Temps de calcul : %.3f seconde\n", (double)time/CLOCKS_PER_SEC);
+	printf("Calcul des limites...\n");
+	Matrice res = (Matrice)est_limite(a, maut);
+	if(res==NULL)
+	  printf("L'automate est limité.\n");
+	else{
+	  printf("L'automate n'est pas limité, voici la premiere matrice qui cause le cout infini :\n");
+	  print_matrice_in_R(res);
+	}
+	print_mautomate(maut);
+	
+	return 0;
+>>>>>>> 4966b86685875a33cf72c39e37434cd6a40ad380
 }
 
 

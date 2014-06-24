@@ -11,16 +11,15 @@
 #include <limits.h> 
 #include <math.h>
 
-#define FALSE 0
-#define TRUE 1
-#define INFINI 3
-#define OMEGA 2
-
 struct _Matrice {
   int** tab;
   tree mot;
   int taille;
 };
+
+/*************************************************************************/
+/************************* Creation, Destruction *************************/
+/*************************************************************************/
 
 Matrice creer_matrice(int taille){
   Matrice m = malloc(sizeof(*m));
@@ -45,6 +44,10 @@ void detruire_matrice(Matrice m){
   free(m);  
 }
 
+/*************************************************************************/
+/****************************** Accesseurs *******************************/
+/*************************************************************************/
+
 int get_taille(Matrice m){
   return m->taille;
 }
@@ -56,6 +59,72 @@ tree get_mot(Matrice m){
 int ** get_tableau(Matrice m){
   return m->tab;
 }
+
+/*************************************************************************/
+/******************************* Affichage *******************************/
+/*************************************************************************/
+
+
+void print_matrice_in_R(Matrice m){
+  printf("M(");
+  print_tree(m->mot);
+  printf(")");
+  printf("\n\t");
+  int i, j;
+  for(i = 0; i<m->taille; i++){
+    printf("|");
+    for(j = 0; j<m->taille; j++){
+      switch(m->tab[i][j])
+	{
+	case OMEGA : printf(" %s ", "ω"); break;
+	case INFINI : printf(" %s ", "∞"); break;
+	default: printf(" %d ", m->tab[i][j]); break;
+	}
+    }
+    printf("|\n\t");
+  }
+  printf("\n");
+}
+
+
+
+/*************************************************************************/
+/************************ Fonctions utilitaires **************************/
+/*************************************************************************/
+
+int equal_size (Matrice m1,Matrice m2){
+  return m1->taille==m2->taille;
+}
+
+int equal_matrice (Matrice m1, Matrice m2){
+  if (!equal_size(m1, m2))
+      return FALSE;
+  int i, j;
+  for(i = 0; i < m1->taille; i++){
+    for(j = 0; j < m1->taille; j++){
+      if (m1->tab[i][j] != m2->tab[i][j])
+	return FALSE;
+    }
+  }
+  return TRUE;
+}
+
+int min (int n1,int n2){
+  if(n1<n2)
+    return n1;
+  return n2;
+}
+
+int max (int n1,int n2){
+  if(n1>n2)
+    return n1;
+  return n2;
+}
+
+/*************************************************************************/
+/************************* Fonctions principales *************************/
+/*************************************************************************/
+
 
 Matrice creer_matrice_transistions(Automate* a, char c){
   a = creer_automate_etats_0_n(a);
@@ -97,58 +166,6 @@ Matrice creer_matrice_transistions(Automate* a, char c){
   return m;
 }
 
-void print_matrice_in_R(Matrice m){
-  printf("M(");
-  print_tree(m->mot);
-  printf(")");
-  printf("\n\t");
-  int i, j;
-  for(i = 0; i<m->taille; i++){
-    printf("|");
-    for(j = 0; j<m->taille; j++){
-      switch(m->tab[i][j])
-	{
-	case OMEGA : printf(" %s ", "ω"); break;
-	case INFINI : printf(" %s ", "∞"); break;
-	default: printf(" %d ", m->tab[i][j]); break;
-	}
-    }
-    printf("|\n\t");
-  }
-  printf("\n");
-}
-
-int min (int n1,int n2){
-  if(n1<n2)
-    return n1;
-  return n2;
-}
-
-int max (int n1,int n2){
-  if(n1>n2)
-    return n1;
-  return n2;
-}
-
-int equal_size (Matrice m1,Matrice m2){
-  return m1->taille==m2->taille;
-}
-
-int equal_matrice (Matrice m1, Matrice m2){
-  if (!equal_size(m1, m2))
-      return FALSE;
-  int i, j;
-  for(i = 0; i < m1->taille; i++){
-    for(j = 0; j < m1->taille; j++){
-      if (m1->tab[i][j] != m2->tab[i][j])
-	return FALSE;
-    }
-  }
-  return TRUE;
-}
-
-
-//multiplication de deux matrices en version "min"; 
 Matrice multiplication_in_MnR(Matrice m1,Matrice m2){
   if(!equal_size(m1,m2)){
     printf("sont pas de meme taille");
@@ -174,10 +191,6 @@ Matrice multiplication_in_MnR(Matrice m1,Matrice m2){
   return m3;
 }
 
-/* Condition 1 : pour tout i,j,k  e(i,j) <= max(e(i,k), e(k,j))
- * Condition 2 : pour tout i,j, il existe k tq e(i,j) = max(e(i,k), e(k,j))
- * Condition 1 && Condition 2 <=> m est idempotent
- */
 
 int est_idempotent(Matrice m){
   return equal_matrice(m, multiplication_in_MnR(m, m));
@@ -200,30 +213,6 @@ int stable(int i,int j,Matrice m){
   }
 }
 
-
-//test si la matrice est stable;     
-int est_stable_matrice(Matrice m){
-  Matrice md = creer_matrice_dieze(m);
-  int res = equal_matrice(m, md);
-  return res;
-}
-
-
-/* print la stabilite de la matrice; */
-/* le char ne print pas correctement; */
-/* void printStableMatrice(Matrice m){ */
-/*   int i,j; */
-/*   printf("Matrice: %s :\n",m->mot); */
-/*   for(i=0;i<m->taille;i++) */
-/*     for(j=0;j<m->taille;j++){ */
-/*       printf("position (%d,%d) est %s.\n",i,j,stable(i,j,m)?"stable":"non stable"); */
-/*     } */
-/*   printf("matrice %s est %d.\n",m->mot,est_stable_matrice(m)); */
-/*   printf("matrice %s est dans %s.\n",m->mot,estMatriceR(m)?"R":"N"); */
-/*   printf("\n"); */
-/* } */
-
-
 //test si la matrice est dans R;
 int estMatriceR(Matrice m){
   int i,j;
@@ -235,29 +224,8 @@ int estMatriceR(Matrice m){
   return TRUE;
 }
 
-/* //convertir une matrice dans N vers une matrice dans R; */
-/* //c'est pas defini l'infini et omega */
-/* Matrice matriceNaR(Matrice m){ */
-/*   if(estMatriceR(m)) */
-/*     return m; */
-/*   Matrice ma=creer_matrice(m->mot,m->taille); */
-/*   int i,j; */
-/*   for(i=0;i<m->taille;i++) */
-/*     for(j=0;j<m->taille;j++){ */
-/*       if(m->tab[i][j]==0) */
-/* 	ma->tab[i][j]=0; */
-/*       if(m->tab[i][j]==1) */
-/* 	ma->tab[i][j]=1; */
-/*       if(m->tab[i][j]>=2)//2 est omega; */
-/* 	ma->tab[i][j]=2; */
-/*       if(m->tab[i][j]==3)//33 est infini; */
-/* 	ma->tab[i][j]=3; */
-/*     } */
-/*   return ma; */
-/* } */
-
-//calculer la matrice #d'une matrice dans R
-Matrice creer_matrice_dieze(Matrice m){
+// Calcule et renvoie la matrice # d'une matrice dans R
+Matrice creer_matrice_diese(Matrice m){
   if(!estMatriceR(m)){
     printf("erreur");
     return NULL;
