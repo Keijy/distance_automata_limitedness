@@ -20,7 +20,7 @@
 \newcommand{\Aut}{\mathcal{A}}
 
 \tableofcontents
-\chapter*{Introduction au problème}
+\chapter{Introduction au problème}
 Durant ce stage, nous avons voulu approfondir nos connaissances dans une branche de l'informatique théorique que nous avons commencé à étudier lors de ce dernier semestre de licence. Ce sont donc les automates et les interrogations qui gravitent autour de cette structure qui nous ont intéressé.\\
 Un automate est une machine abstraite qui va accepter ou rejeter des mots dans un alphabet fini. Plus formellement, un automate est définit, par 5 ensembles, de la façon suivante : \\
 \begin{center}
@@ -32,9 +32,9 @@ $I$ : l'ensemble des états initiaux\\
 $F$ : l'ensemble des états finaux\\
 $\delta$ : l'ensemble des transitions\\
 
-Pour représenter graphiquement un automate, on utilise un graphe orienté dans lequel les sommets du graphe sont les états de l'automate et où chaque arrête correspond à une transition de l'automate. Un mot est accepté par un automate s'il existe une chemin dans celui-ci, partant d'un état initial et allant jusqu'à un état final en lisant les lettres une par une. Un tel chemin est appelé \textit{chemin acceptant} et l'ensemble des mots accepté par un automate est appelé \textit{Langage}, on le note $\mathcal{L}(\Aut)$.\\
+Pour représenter graphiquement un automate, on utilise un graphe orienté dans lequel les sommets du graphe sont les états de l'automate et où chaque arrête correspond à une transition de l'automate. Un mot est accepté par un automate $\Aut$, s'il existe une chemin dans celui-ci, partant d'un état initial et allant jusqu'à un état final en lisant les lettres une par une. Un tel chemin est appelé \textit{chemin acceptant} et l'ensemble des mots acceptés par un automate est appelé \textit{Langage}, on le note $\mathcal{L}(\Aut)$.\\
 
-Ainsi les automates permettent de caractériser certains langage, par exemple, les automate finis définissent ce qu'on appelle les langages rationnels ou encore les automates à pile qui permettent de définir les langages algébriques (voir \cite{Elements-d-algorithmique}) et qui sont grandement utiliser en analyse syntaxique.
+La théorie des automates et des langages est un domaine très actif depuis le milieu du 20e siècle et il existe aujourd'hui plusieurs modèles d'automates nés pour répondre à certaines problématiques. C'est un des ces modèle qui va nous intéresser dans ce rapport, mais ne faisant pas parti des modèles "basiques", nous allons d'abord illustrer les notions que nous venons d'aborder.
 \\
 
 Voici l'exemple d'un automate très basique qui accepte tous les mots sur l'alphabet $\{a, b\}$ qui comportent un nombre pair de $a$.\\
@@ -71,12 +71,16 @@ Cet automate permet d'introduire une notion élémentaire de la théorie des aut
 \end{tikzpicture}
 \end{center}
 
-La théorie des automates et des langages est un domaine très actif depuis le milieu du 20e siècle et il existe aujourd'hui plusieurs modèles d'automate nés pour répondre à certaines problématiques. C'est un de ces modèle particulier qui nous a intéressé lors de ce stage : les automates à distance (distance automata).
+
+Ainsi les automates permettent de caractériser certains langages, par exemple, les automates finis qui définissent ce qu'on appelle les langages rationnels, ou encore les automates à pile qui permettent de définir les langages algébriques (voir \cite{Elements-d-algorithmique}), qui sont grandement utiliser en analyse syntaxique. Et c'est également un certain type d'automate qui va nous intéresser dans ce rapport : les automates à distance (distance automata).
 \\
 Ce sont des automates finis, non déterministes, dans lesquels les transitions sont pondérées. On associe donc un coût pour chaque mot accepté par l'automate. Le coût d'un mot correspond au minimum des coûts de tous ses chemins acceptants dans l'automate .\\
 Ce type d'automate a été présenté par Hashiguchi dans \cite{Hashiguchi:Limitedness-theorem-on-finite-automata-with-distance-functions:1982:a} pour la résolution d'une célèbre problématique, la question de hauteur d'étoile (star height problem) \cite{Eggan:Transition-graphs-and-the-star-height-of-regular-events:1963:a}. Mais les automates à distance posent également un autre problème, celui limitedness.\\
-Le problème de limitedness est très simple à comprendre, il est simplement question de savoir si il existe une majoration des coûts des mots acceptés par un automate à distance.\\
-
+Le problème de limitedness est très simple à comprendre, il est simplement question de savoir si il existe une majoration des coûts pour tous les mots acceptés par un automate à distance.\\
+La décidabilité de ce problème n'est pas évidente. En effet il existe des problème similaires dont on a prouvé leur indécidabilité, c'est à dire la preuve qu'il n'existe pas d'algorithme capable de résoudre le problème. Il est par exemple prouvé que la question suivante est indécidable :
+\begin{center}
+\textit{Soit $\Aut_{1}$ et $\Aut_{2}$ deux automates à distance distincts. $\forall w \in L(\Aut_{1}) \cap L(\Aut_{2})$, est ce que le coût de $w$ dans $\Aut_{1}$ est égale au coût de $w$ dans $\Aut_{2}$ ?}
+\end{center}
 Le travail d'Hashiguchi étant considéré comme difficile à comprendre, d'autre chercheurs, comme Simon \cite{Simon:Semigroups-Matrices-over-Tropical:1994:a} ou Leung \cite{Leung&Podolskiy:limitedness-problem-distance-automata::2004:a}, ont étudié le problème et apporté d'autres solutions sur le sujet.\\
 
 Notre travail a donc consisté, dans un premier temps, à lire et comprendre les différents travaux de ces chercheurs afin d'être capable d'implémenter un algorithme permettant la détection de limite dans un automate à distance.
