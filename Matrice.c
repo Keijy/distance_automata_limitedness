@@ -36,12 +36,14 @@ Matrice creer_matrice(int taille){
 void detruire_matrice(Matrice m){
   if(m == NULL)
     return;
-  
-  int i;
-  for(i = 0; i<m->taille; i++)
-    free(m->tab+i);
-  free(m->tab);
-  free(m);  
+  else{
+    int i;
+    for(i = 0; i<m->taille; i++){
+      free(m->tab[i]);
+    }
+    free(m->tab);
+    free(m);  
+  }
 }
 
 /*************************************************************************/
@@ -127,8 +129,8 @@ int max (int n1,int n2){
 
 
 Matrice creer_matrice_transistions(Automate* a, char c){
-  a = creer_automate_etats_0_n(a);
-  int n = taille_ensemble(get_etats(a));	
+  Automate * abis = creer_automate_etats_0_n(a);
+  int n = taille_ensemble(get_etats(abis));	
   Matrice m = creer_matrice(n);
   tree t=tree_creat();
   tree_set(t, c);
@@ -143,7 +145,7 @@ Matrice creer_matrice_transistions(Automate* a, char c){
 
   Table_iterateur it1;
   Ensemble_iterateur it2;
-  for ( it1 = premier_iterateur_table(get_transitions(a));
+  for ( it1 = premier_iterateur_table(get_transitions(abis));
 	! iterateur_ensemble_est_vide(it1);
 	it1 = iterateur_suivant_ensemble(it1)
 	){
@@ -162,7 +164,7 @@ Matrice creer_matrice_transistions(Automate* a, char c){
       }
     }
   }
-  liberer_automate(a);
+  liberer_automate(abis);
   return m;
 }
 

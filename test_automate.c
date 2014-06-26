@@ -148,7 +148,7 @@ int main(){
   printf("\n==========L'automate a est-il limité ?==============\n");
   printf("Calcul de l'automate des matrices...\n");
   clock_t time = clock();
-  Mautomate * maut = creer_automate_des_matrices(a);
+  Mautomate * maut = creer_mautomate(a);
   time= clock();
   printf("Temps de calcul : %.3f seconde\n", (double)time/CLOCKS_PER_SEC);
   printf("Calcul des limites...\n");
@@ -160,9 +160,9 @@ int main(){
     print_matrice_in_R(res);
   }
   print_mautomate(maut);
-	
+  liberer_mautomate(maut);
+  liberer_automate(a);//c'est bon
   return 0;
-
 }
 
 

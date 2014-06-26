@@ -152,14 +152,6 @@ Automate * creer_automate(){
   return automate;
 }
 
-Mautomate* creer_mautomate(Automate* a, Table* t_etats, Table* t_lettres){
-  Mautomate *m = malloc(sizeof(*m));
-  m->automate = a;
-  m->t_matrices_etats = t_etats;
-  m->t_matrices_lettres = t_lettres;
-  return m;
-}
-
 void liberer_automate( Automate * automate ){
   liberer_ensemble( automate->vide );
   liberer_ensemble( automate->finaux );
@@ -381,6 +373,8 @@ Automate * creer_automate_etat_different( const Automate * src,
 				get_valeur(t_fin));
 	}
     }
+    liberer_table(table_corresp_etats);
+    liberer_automate(copie_src);
     return res;
 }
 
@@ -663,10 +657,12 @@ void completer_automate_des_matrices(Mautomate * a){
 	  if(!find)
 	    add_table(t_matrices_etats, (intptr_t)dest, (intptr_t)new_m);
 	  ajouter_transition(ma, etat, lettre, 0, dest);
+	    
 	}
-      }        
+      }      
     }
   }
+
 }
 
 
@@ -691,41 +687,11 @@ void calculer_diese_mautotmate(Mautomate * ma){
 	  ajouter_transition(ma->automate, 0, lettre, 0, etat);
 	  completer_automate_des_matrices(ma);
 	}
+	
       }
     }
   }
-}
-
-
-/* Renvoie un "mautomate" qui contient un automate complet où chaque état 
- * correspond à une matrice de transition pour tous les chemins menant à cet état.
- * La structure contient également deux table qui permettent d'acceder au matrices rapidement.
- */
-Mautomate * creer_automate_des_matrices (Automate* a){
-  Automate * abis = creer_automate_etats_0_n(a);
-  Automate * ma = creer_automate();
-  Table * t_matrices_etats = creer_table(NULL, NULL, NULL); //table qui, à une état, associe sa matrice dans R
-  Table * t_matrices_lettres = creer_table(NULL, NULL, NULL); //table qui, à une lettre associe sa matrice dans R
-  ajouter_etat(ma, 0);
-
-  Ensemble_iterateur it1;
-  for( it1 = premier_iterateur_ensemble( get_alphabet(abis) );
-       ! iterateur_ensemble_est_vide(it1);
-       it1 = iterateur_suivant_ensemble(it1)
-       ){
-    int new_state = get_etat_libre(ma);
-    char lettre = get_element(it1);
-    Matrice tmp = creer_matrice_transistions(abis, lettre);
-    add_table(t_matrices_etats, (intptr_t)new_state, (intptr_t)tmp);
-    add_table(t_matrices_lettres, (intptr_t)lettre, (intptr_t)tmp);
-    ajouter_transition(ma, 0, lettre, 0, new_state);
-  }
-
-  Mautomate * res = creer_mautomate(ma, t_matrices_etats, t_matrices_lettres);
-  completer_automate_des_matrices(res);
-  calculer_diese_mautotmate(res);
   
-  return res;
 }
 
 /* Renvoie NULL si l'automate est limité
@@ -757,3 +723,55 @@ void * est_limite(Automate* a, Mautomate * ma){
   return NULL;
 }
 
+
+/* Renvoie un "mautomate" qui contient un automate complet où chaque état 
+ * correspond à une matrice de transition pour tous les chemins menant à cet état.
+ * La structure contient également deux table qui permettent d'acceder au matrices rapidement.
+ */
+
+Mautomate* creer_mautomate(Automate* a){
+  Mautomate *m = malloc(sizeof(*m));
+  m->automate = creer_automate();
+  m->t_matrices_etats = creer_table(NULL, NULL, NULL); //table qui, à une état, associe sa matrice dans R
+  m->t_matrices_lettres = creer_table(NULL, NULL, NULL); //table qui, à une lettre associe sa matrice dans R
+
+  Automate * abis = creer_automate_etats_0_n(a);
+
+  ajouter_etat(m->automate, 0);
+
+  Ensemble_iterateur it1;
+  for( it1 = premier_iterateur_ensemble( get_alphabet(abis) );
+       ! iterateur_ensemble_est_vide(it1);
+       it1 = iterateur_suivant_ensemble(it1)
+       ){
+    int new_state = get_etat_libre(m->automate);
+    char lettre = get_element(it1);
+    Matrice tmp = creer_matrice_transistions(abis, lettre);
+    add_table(m->t_matrices_etats, (intptr_t)new_state, (intptr_t)tmp);
+    add_table(m->t_matrices_lettres, (intptr_t)lettre, (intptr_t)tmp);
+    ajouter_transition(m->automate, 0, lettre, 0, new_state);
+  }
+
+  completer_automate_des_matrices(m);
+  calculer_diese_mautotmate(m);
+
+  liberer_automate(abis);
+  
+  return m;
+}
+
+void liberer_mautomate(Mautomate* a){
+  liberer_automate(a->automate);
+  Table_iterateur it1;
+
+  for( it1 = premier_iterateur_table(a->t_matrices_etats);
+       !iterateur_ensemble_est_vide( it1 );
+       it1 = iterateur_suivant_ensemble( it1 )
+       ){
+    Matrice tmp = (Matrice) get_valeur( it1 );
+    detruire_matrice(tmp);
+  }
+  liberer_table(a->t_matrices_etats);
+  liberer_table(a->t_matrices_lettres);
+  free(a);
+}
