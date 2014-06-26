@@ -36,22 +36,10 @@ void creergraphe(Automate *a){
   for(it = premier_iterateur_ensemble(get_finaux(a));
       ! iterateur_ensemble_est_vide( it );
       it = iterateur_suivant_ensemble( it )){
-    int tmp = (int)get_element( it);
-    char num_etat[32];
-    sprintf(num_etat," %d ", tmp);
-    fprintf(f, num_etat);
+    fprintf(f, "%d ", (int)get_element( it));
   }
   fprintf(f,";\n\t");
-  fprintf(f,"node [shape = point ];\n\t");
-  for(it = premier_iterateur_ensemble(get_initiaux(a));
-      ! iterateur_ensemble_est_vide( it );
-      it = iterateur_suivant_ensemble( it )){
-    int tmp=get_element(it);
-    char num_etat[32];
-    sprintf(num_etat," i%d ", tmp);
-    fprintf(f,num_etat);
-  }
-  fprintf(f,";\n\t");
+  
   fprintf(f,"\n\tnode [shape = circle];\n\t"); 
   Table_iterateur it2;
   for( it2 = premier_iterateur_table(get_transitions( a ));
@@ -65,32 +53,42 @@ void creergraphe(Automate *a){
 	 it = iterateur_suivant_ensemble( it )
 	 ){ 
       int fin = get_element( it );
-      int origine=get_origine_cle(cle);
-      char num_etat[32];
-      sprintf(num_etat," %d ", origine);
-      fprintf(f,num_etat);
+      fprintf(f,"%d",(int)get_origine_cle(cle));
     
       fprintf(f," -> ");
-      fprintf(f,"%d",fin);
+      fprintf(f,"%d",(int)fin);
 
-      fprintf(f," [ label =");
+      fprintf(f," [ label =\"");  
       char lettre=get_lettre_cle(cle);
-      char num_etat1[32];
-      sprintf(num_etat1,"\" %c ", lettre);
-      fprintf(f,num_etat1);
+      fprintf(f,"%c",lettre);
 
     
       fprintf(f, ":");
-      int cout=get_cout_cle(cle);
-      char num_etat2[32];
-      sprintf(num_etat2," %d\"", cout);
-      fprintf(f,num_etat2);
+      fprintf(f,"%d",get_cout_cle(cle));
 
-      fprintf(f," ];\n\t");
+      fprintf(f,"\"];\n\t");
     }
-  }    
+  }   
+  fprintf(f,"node [shape = point];\n\t");
+  for(it = premier_iterateur_ensemble(get_initiaux(a));
+      ! iterateur_ensemble_est_vide( it );
+      it = iterateur_suivant_ensemble( it )){
+    fprintf(f,"i%d ",(int)get_element(it));
+  } 
+  fprintf(f,";\n\t");
+  for(it = premier_iterateur_ensemble(get_initiaux(a));
+      ! iterateur_ensemble_est_vide( it );
+      it = iterateur_suivant_ensemble( it )){
+    fprintf(f,"i%d",(int)get_element(it));
+    fprintf(f," -> ");
+    fprintf(f,"%d",(int)get_element(it));
+
+    fprintf(f," [ label =\"start\" ];\n\t");
+  }
+  
   fprintf(f,"}\n");
   fclose(f);
+
 }
 
 
@@ -137,6 +135,14 @@ int main(){
 
   creergraphe(a);
   print_automate(a);
+  printf("Voulez vous voir le graphe de cet automate dans le navigateur firefox? (y/n)\n");
+  char entree;
+  scanf("%c", &entree);
+  if(entree == 'y'){
+    system("dot -Tpng auto.gv -o auto.png");
+    system("firefox auto.png >/dev/null 2>&1 &");
+  }
+
   printf("\n");
 
   printf("\n==========L'automate a est-il limité ?==============\n");
