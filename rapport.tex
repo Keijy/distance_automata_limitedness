@@ -89,7 +89,7 @@ Notre travail a donc consisté, dans un premier temps, à lire et comprendre les
 
 \chapter{De l'automate aux matrices}
 
-Le papier dont nous nous somme le plus servit afin de comprendre et résoudre le problème de limitedness, est \cite{Simon:Semigroups-Matrices-over-Tropical:1994:a} mais il nous a d'abord fallu comprendre la complexité du problème.
+Le papier dont nous nous sommes le plus servit afin de comprendre et résoudre le problème de limitedness, est \cite{Simon:Semigroups-Matrices-over-Tropical:1994:a} mais il nous a d'abord fallu comprendre la complexité du problème.
 
 \chapter{Matrices idempotentes}
 
@@ -103,7 +103,34 @@ Le papier dont nous nous somme le plus servit afin de comprendre et résoudre le
 
 \chapter{Création et manipulation des matrice}
 
-(creer\_matrice\_transition, multiplication, etc...)
+(creer\_matrice\_transition, multiplication, etc...)\\
+
+%pourquoi on utilise l'arbre syntaxique?\\
+%aaaaa\\\\
+%aaaa
+% texmaker  F1 ->> sauvgarder et compiler a la meme fois
+
+Dans notre sujet, la matrice représente la matrice d'incidence. Les indices dans la matrice sont des étiquettes d'état. Du coup,dans notre cas,toutes les matrices sont de la forme carrée n x n ,  dont n est le nombre d'états.\\
+
+D'après ce fait,on construit la matrice avec la fonction créer\_matrice(int taille). La matrice contient la taille le mot et un tableau de deux dimensions du type int. alors ,on alloue le mémoire successivement pour la structure de la matrice et le tableau d'int de deux dimensions.\\
+
+Également, pour la destruction, si la matrice est deja NULL, on la laisse tranquille, sinon on des-alloue la structure de la matrice ainsi pour le tableau de deux dimensions.\\
+
+Pour accéder dans la matrice, on a trois successeurs pour obtenir les informations sur le tableau, le mot et la taille de la matrice. \\
+
+vous voyez bien que dans notre structure de la matrice il y a un "mot" qui est du type tree, ce mot est pour exprimer la matrice sous forme d'expression rationnel. le mot contient trois genres de choses: 
+
+	l'alphabet  (dans R a,b,c,etc.)
+
+    la dièse '$\#$'  (la répétition comme * dans l'expression rationnel)
+
+    le point "."  ("."signifie la concaténation)\\
+Car on construit le mot par la manipulation de concaténation en collant les sous mot, on include arbresytaxique.h pour bien résoudre le problem de construction du mot.\\
+
+La fonction print\_matrice\_in\_R permet d'afficher la matrice de façon mathématique. en précise, on définit INFINI est 3 et OMÉGA est 2 dans Matrice.h, ici on reconverti INFINI et OMÉGA comme $\infty$ et $\omega$ .\\
+
+la fonction multiplication fais pas la multiplication normale de matrice. en fait on prend deux matrices de la meme taille comme parametres, en suite, on cree un nouveau matrice en attend a retourner.on initialise tous les elelment dans la tableau a -1.puis on  parcours toutes les case des deux tableaux de chacun.
+
 
 \chapter{Structure de stockage des matrices}
 
