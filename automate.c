@@ -382,7 +382,10 @@ Automate * creer_automate_etat_different( const Automate * src,
  * de 0 à n-1, où n est le nombre d'états de l'automate
  */
 Automate * creer_automate_etats_0_n (Automate* a){
-  return creer_automate_etat_different(creer_automate(), a);
+  Automate* m=creer_automate();
+  Automate* res=creer_automate_etat_different(m, a);
+  liberer_automate(m);
+  return res;
 }
 
 Automate * translater_etat( const Automate * automate, int n ){
@@ -651,6 +654,7 @@ void completer_automate_des_matrices(Mautomate * a){
 	    Matrice m_tmp = (Matrice) get_valeur( it3 );
 	    if(equal_matrice(m_tmp, new_m)){
 	      find = TRUE;
+	      detruire_matrice(new_m);
 	      dest = cle;
 	    }
 	  }
@@ -687,6 +691,8 @@ void calculer_diese_mautotmate(Mautomate * ma){
 	  ajouter_transition(ma->automate, 0, lettre, 0, etat);
 	  completer_automate_des_matrices(ma);
 	}
+	else
+	  detruire_matrice(md);
 	
       }
     }

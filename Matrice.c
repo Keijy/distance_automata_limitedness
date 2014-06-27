@@ -42,6 +42,7 @@ void detruire_matrice(Matrice m){
       free(m->tab[i]);
     }
     free(m->tab);
+    tree_destroy(m->mot);
     free(m);  
   }
 }
@@ -195,7 +196,10 @@ Matrice multiplication_in_MnR(Matrice m1,Matrice m2){
 
 
 int est_idempotent(Matrice m){
-  return equal_matrice(m, multiplication_in_MnR(m, m));
+  Matrice tmp = multiplication_in_MnR(m, m);
+  int res = equal_matrice(m, tmp);
+  detruire_matrice(tmp);
+  return res;
 }
 
 
