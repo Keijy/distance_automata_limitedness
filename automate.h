@@ -473,11 +473,13 @@ int est_complet(Automate* a);
  * correspond à une matrice de transition pour tous les chemins menant à cet état.
  * La structure contient également deux table qui permettent d'acceder au matrices rapidement.
  */
-Mautomate * creer_automate_des_matrices (Automate* a);
+Mautomate * creer_mautomate(Automate* a);
 
 /* Renvoie NULL si l'automate est limité
  * Renvoie la premiere matrice qui cause le cout infini sinon
  */
 void * est_limite(Automate* a, Mautomate * ma);
+
+void liberer_mautomate(Mautomate *a);
 
 #endif
