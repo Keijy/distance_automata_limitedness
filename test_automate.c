@@ -135,12 +135,13 @@ int main(){
 
   creergraphe(a);
   print_automate(a);
-  printf("Voulez vous voir le graphe de cet automate dans le navigateur firefox? (y/n)\n");
+  printf("Voulez vous voir le graphe de cet automate? (y/n)\n");
   char entree;
   scanf("%c", &entree);
   if(entree == 'y'){
     system("dot -Tpng auto.gv -o auto.png");
-    system("firefox auto.png >/dev/null 2>&1 &");
+    system("xdg-open auto.png &");  //open avec le logiciel par default
+    /* system("firefox auto.png >/dev/null 2>&1 &"); */  //open avec firefox
   }
 
   printf("\n");

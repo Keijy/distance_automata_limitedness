@@ -492,23 +492,29 @@ void print_automate( const Automate * automate ){
 void print_mautomate(Mautomate* a){
   int nb_etats = taille_ensemble(a->automate->etats);
   int nb_lettres = taille_ensemble(a->automate->alphabet);
-  char entree;
   int nb_entree;
   printf("Voulez-vous afficher l'automate des matrice ? (y/n)\n (%d états, %d lettres)\n", nb_etats, nb_lettres);
+
+  //vider le tampon
+  int c;
+  while((c=getchar()) != '\n' && c != EOF);
+  char entree;
+
   scanf("%c", &entree);
   if(entree == 'y'){
+    printf("LOL\n");
     print_automate(a->automate);
   }
 
   //vider le tampon
-  int c;
   while((c=getchar()) != '\n' && c != EOF);
 
   printf("Voulez-vous afficher les matrice de l'automate ? (y/n)\n (%d matrices)\n", nb_etats-1);
   scanf("%c", &entree);  
   if(entree == 'y'){
     printf("Combien de matrices souhaitez-vous afficher ?(%d matrices)\n", nb_etats-1);
-    scanf("%d", &nb_entree);
+    scanf("%d", &nb_entree); 
+    
     printf("\nMatrices correspondant aux états de l'automate :\n\n");
     Table_iterateur it;
     int i;
