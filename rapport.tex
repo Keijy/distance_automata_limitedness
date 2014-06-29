@@ -8,6 +8,7 @@
 \usepackage{hyperref}
 \usepackage{tikz}
 \usepackage{amssymb}
+\usepackage{xcolor}
 
 \usetikzlibrary{arrows,positioning,automata,shadows,matrix,calc}
 
@@ -135,10 +136,11 @@ Pour simplifier les calculs de coûts, il fallait utiliser des structures mathé
 \end{tikzpicture}
 \[ Automate\; \Ref\]
 \end{center}
+$\ $
 
 Cet automate est-il limité ? Plus formellement : 
 \begin{center}
-$\exists ?B \in \N$ tel que $\forall w \in L(\Ref), \; cost(w)\le B$
+$\exists ?B \in \N$ tel que $\forall w \in L(\Ref), \; cost(w)\le B$\\
 \end{center}
 
 La réponse n'est évidemment pas trivial. C'est pourquoi nous allons utiliser des matrice pour représenter les différents coûts pour une lecture de lettres. La matrice $Ma$ va par exemple contenir le coût de la lecture de la lettre $a$ depuis tout les états de l'automate de la manière suivante :\\
@@ -156,7 +158,7 @@ M_{i,j} =
 Pour $\Ref$, on a donc par exemple :\\
 
 \begin{center}
-$Ma=$
+$M(a)=$
 \begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax ]
 \matrix(m)[matrix of math nodes,left delimiter=(,right delimiter=),inner sep=4pt,ampersand replacement=\&]
 {
@@ -179,7 +181,7 @@ $Ma=$
 et
 
 \begin{center}
-$Mb=$
+$M(b)=$
 \begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax ]
 \matrix(m)[matrix of math nodes,left delimiter=(,right delimiter=),inner sep=4pt,ampersand replacement=\&]
 {
@@ -200,8 +202,36 @@ $Mb=$
 \end{tikzpicture}
 \end{center}
 
-Ces matrices sont donc définies sur $\{\N \cup \infty\}$. Leur fonctionnement est très simple : la numérotation de chaque ligne et de chaque colonne correspond aux états de l'automate. Par exemple, on a $Mb_{(2,3)}=0$. Cela signifie que le coûts pour aller de l'état 2 à l'état 3 en lisant un $b$ est de 0. 
+Ces matrices sont donc définies sur $\{\N \cup \infty\}$, nous les appellerons matrices de coûts. Leur fonctionnement est très simple : la numérotation de chaque ligne et de chaque colonne correspond aux états de l'automate. Par exemple, dans la matrice de coûts pour la lettre $b$, on a $M(b)_{(2,3)}=0$. Cela signifie que le coûts pour aller de l'état 2 à l'état 3 en lisant un $b$ est de 0, ce qu'on peut vérifier sur l'automate. \\
 
+Avant d'aller plus loin il est nécessaire de définir la structure algébrique qui est au cœur de l'algorithme de résolution du problème de limitedness, les semi-anneaux.\\
+Un semi-anneau est formé d'un ensemble $E$ muni de deux lois associatives, $\oplus$ et $\otimes$, et d'un élément neutre pour chaque loi. De plus, la première loi est commutative et la seconde est distributive sur la première.\\
+Exemple : Les entiers naturels, munis de l'addition et de la multiplication, forment un semi-anneau : $\{ \N,\;+,\;* \}$. Les éléments neutres sont 0 pour l'addition et 1 pour la multiplication. Ces deux lois sont bien associative, l'addition est commutative et la multiplication est distributive sur l'addition. On remarque que la multiplication est également commutative, on dit que $\N$ est un semi-anneau commutatif.\\
+
+Cette structure va nous servir pour définir la multiplication de deux matrices de coûts. Le premier semi-anneau que nous allons définir est celui formé par l'ensemble $\{\N \cup \infty\}$ tel que :
+\begin{itemize}
+\item $a \oplus b = min(a,\;b)$, avec élément neutre $\infty$
+\item $a \otimes b = a + b$, avec élément neutre $0$
+\end{itemize}
+$\ $
+
+Nous avons maintenant la possibilité de multiplier deux matrices de coûts entre elles afin d'obtenir la matrice correspondant à la concaténation des mots des matrices. On a donc :
+\begin{center}
+$M(ab) = M(a) \times M(b) =$
+\begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax ]
+\matrix(m)[matrix of math nodes,left delimiter=(,right delimiter=),inner sep=4pt,ampersand replacement=\&]
+{
+0      \&  \textcolor{red}{0}      \& \textcolor{red}{\infty} \&  \textcolor{red}{\infty} \\
+\infty \&  \textcolor{red}{\infty} \& \textcolor{red}{1}      \&  \textcolor{red}{\infty} \\
+\infty \&  \infty 					\& 0      					\&  \infty 					 \\
+\infty \&  \textcolor{red}{\infty}	\& \textcolor{red}{\infty}	\&  \textcolor{red}{1}      \\
+};
+\end{tikzpicture}
+\end{center}
+$\ $
+
+Il est ainsi possible d'obtenir les matrices de coûts pour n'importe quel mots composé de lettres de l'alphabet de l'automate. Et pour obtenir le coût du mot, il faut prendre le minimum des coûts situés dans l'intersection des états initiaux en ligne et des états finaux en colonne. Nous représentons les coûts compris dans cette intersection en rouge.\\
+On peut donc dire que $cost(ab) = M(ab)_{(1,2)} = 0$ et il s'obtient en partant de l'état 1 vers l'état 2.
 \chapter{Matrices idempotentes}
 
 \chapter{Matrices stables}
