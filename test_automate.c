@@ -135,7 +135,7 @@ int main(){
 
   creergraphe(a);
   print_automate(a);
-  printf("Voulez vous voir le graphe de cet automate? (y/n)\n");
+  printf("Voulez vous voir le graphe de cet automate? (y/n) *il faut insatller le graphviz avant l'afficher*\n");
   char entree;
   scanf("%c", &entree);
   if(entree == 'y'){
