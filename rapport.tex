@@ -42,7 +42,7 @@ Voici l'exemple d'un automate très basique qui accepte tous les mots sur l'alph
 \end{tikzpicture}
 \end{center}
 
-Pour représenter graphiquement un automate, on utilise donc un graphe orienté dans lequel les sommets du graphe sont les états de l'automate et où chaque arrête correspond à une transition de l'automate, c'est à dire à la lecture d'une lettre. Un mot est accepté par un automate $\Aut$, s'il existe une chemin dans celui-ci, partant d'un état initial et allant jusqu'à un état final en lisant les lettres une par une. Un tel chemin est appelé \textit{chemin acceptant} et l'ensemble des mots acceptés par un automate est appelé \textit{Langage}, on le note $L(\Aut)$.\\\\
+Pour représenter graphiquement un automate, on utilise donc un graphe orienté dans lequel les sommets du graphe sont les états de l'automate et où chaque arrête correspond à une transition de l'automate, c'est à dire à la lecture d'une lettre. Un mot est accepté par un automate $\Aut$, s'il existe un chemin dans celui-ci, partant d'un état initial et allant jusqu'à un état final en lisant les lettres une par une. Un tel chemin est appelé \textit{chemin acceptant} et l'ensemble des mots acceptés par un automate est appelé \textit{Langage}, on le note $L(\Aut)$.\\\\
 Formellement, un automate est défini, par 5 ensembles, de la façon suivante :
 \begin{center}
  $ \Aut = \{ A, Q, I, F, \delta \}\ $     avec,
@@ -231,8 +231,21 @@ $M(ab) = M(a) \times M(b) =$
 $\ $
 
 Il est ainsi possible d'obtenir les matrices de coûts pour n'importe quel mots composé de lettres de l'alphabet de l'automate. Et pour obtenir le coût du mot, il faut prendre le minimum des coûts situés dans l'intersection des états initiaux en ligne et des états finaux en colonne. Nous représentons les coûts compris dans cette intersection en rouge.\\
-On peut donc dire que $cost(ab) = M(ab)_{(1,2)} = 0$ et il s'obtient en partant de l'état 1 vers l'état 2.
+On peut donc dire que $cost(ab) = M(ab)_{(1,2)} = 0$ et il s'obtient en partant de l'état 1 vers l'état 2.\\
+
+Cela ne nous permet cependant pas de déterminer si l'automate est limité ou pas. En effet deux facteurs rendent le nombre de matrices infini : l'ensemble de définition des matrices $\{\N \cup \infty\}$ et le nombre de mots acceptés par l'automate qui est lui aussi infini.
 \chapter{Matrices idempotentes}
+
+Dans ce chapitre, nous allons faire évoluer nos matrices afin de rendre leur nombre limité. Tout d'abord, il est nécessaire de modifier le semi-anneaux qui est défini sur un ensemble infini. Dans le problème de limite, la valeur du coût en elle-même n'a pas vraiment d'utilité. Ce qui nous intéresse, c'est de savoir si cette valeur est fixe ou si elle va croître avec la longueur du mot. Si elle croît, ce signifie qu'il existe une boucle dans l'automate dont le poids est strictement supérieur à 0.\\
+Nous allons donc définir un ensemble de 4 valeurs qui suffiront à représenter l'intégralité des coûts possibles : 
+\begin{itemize}
+\item $0$ qui correspond au coût gratuit
+\item $1$ qui correspond à un coût potentiellement grand mais fixe
+\item $\omega$ qui correspond à un coût instable, qui va croître
+\item $\infty$ qui a toujours la même signification, à savoir correspondre aux coûts impossibles à payer
+\end{itemize}
+$\ $\\
+Et on a donc $0 < 1 < \omega < \infty$, il reste maintenant à définir les deux lois associatives du nouveau semi-anneau. La première est identique car nous souhaitons toujours obtenir le minimum parmi tous les chemins : $a \oplus b = min(a,\;b)$. Mais l'addition de coûts ne nous intéresse plus, nous voulons maintenant connaître le plus gros coût parmi toutes les transitions du chemin de lecture d'un mot. On prend donc $a \otimes b = max(a,\;b)$.
 
 \chapter{Matrices stables}
 
