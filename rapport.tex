@@ -23,6 +23,7 @@
 \newcommand{\Aut}{\mathcal{A}}
 \newcommand{\Ref}{\Aut_{ref}}
 \newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathcal{R}}
 
 \tableofcontents
 \chapter{Introduction au problème}
@@ -143,7 +144,7 @@ Cet automate est-il limité ? Plus formellement :
 $\exists ?B \in \N$ tel que $\forall w \in L(\Ref), \; cost(w)\le B$\\
 \end{center}
 
-La réponse n'est évidemment pas trivial. C'est pourquoi nous allons utiliser des matrice pour représenter les différents coûts pour une lecture de lettres. La matrice $Ma$ va par exemple contenir le coût de la lecture de la lettre $a$ depuis tout les états de l'automate de la manière suivante :\\
+La réponse n'est évidemment pas trivial. C'est pourquoi nous allons utiliser des matrice pour représenter les différents coûts pour une lecture de lettres. La matrice $M(a)$ va par exemple contenir le coût de la lecture de la lettre $a$ depuis tout les états de l'automate de la manière suivante :\\
 
 \[
 M_{i,j} = 
@@ -165,7 +166,7 @@ $M(a)=$
 0      \&  \infty \& \infty \&  \infty \\
 \infty \&  1      \& \infty \&  \infty \\
 \infty \&  \infty \& 0      \&  \infty \\
-\infty \&  \infty \& \infty \&  1      \\
+\infty \&  \infty \& \infty \&  0      \\
 };
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \foreach \s in {1,2,...,4}{
@@ -245,7 +246,43 @@ Nous allons donc définir un ensemble de 4 valeurs qui suffiront à représenter
 \item $\infty$ qui a toujours la même signification, à savoir correspondre aux coûts impossibles à payer
 \end{itemize}
 $\ $\\
-Et on a donc $0 < 1 < \omega < \infty$, il reste maintenant à définir les deux lois associatives du nouveau semi-anneau. La première est identique car nous souhaitons toujours obtenir le minimum parmi tous les chemins : $a \oplus b = min(a,\;b)$. Mais l'addition de coûts ne nous intéresse plus, nous voulons maintenant connaître le plus gros coût parmi toutes les transitions du chemin de lecture d'un mot. On prend donc $a \otimes b = max(a,\;b)$.
+Et on a donc $0 < 1 < \omega < \infty$, il reste maintenant à définir les deux lois associatives du nouveau semi-anneau. La première est identique car nous souhaitons toujours obtenir le minimum parmi tous les chemins : $a \oplus b = min(a,\;b)$. Mais l'addition de coûts ne nous intéresse plus, nous voulons maintenant connaître le plus gros coût parmi toutes les transitions du chemin de lecture d'un mot. On prend donc $a \otimes b = max(a,\;b)$.\\
+Nous formons ainsi le semi-anneau qui est le sujet principal de l'article de Simon, le semi-anneau tropical que nous nommeront également $\R$.\\
+
+On remarque tout de fois qu'à partir des matrices de base dont on dispose et de ces deux nouvelles lois, il est impossible d'obtenir la valeur $\omega$ par simple multiplication matricielle dans $\R$. Il nous est donc impossible de détecter les coûts instables, en effet certaines positions contenant la valeur 1 vont rester à inchangées après une multiplication alors que le coût réel va croître d'une certaine valeur pour chaque lecture du mot représenté par la matrice.\\
+
+Reprenons par exemple notre matrice $M(a)$ : \\
+\begin{center}
+$M(a)=$
+\begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax ]
+\matrix(m)[matrix of math nodes,left delimiter=(,right delimiter=),inner sep=4pt,ampersand replacement=\&]
+{
+0      \&  \infty \& \infty \&  \infty \\
+\infty \&  1      \& \infty \&  \infty \\
+\infty \&  \infty \& 0      \&  \infty \\
+\infty \&  \infty \& \infty \&  0      \\
+};
+\end{tikzpicture}
+\end{center}
+
+Calculons maintenant $M(aa)$ dans $\R$ :
+
+\begin{center}
+$M(aa) = M(a) \times M(a) =$
+\begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax ]
+\matrix(m)[matrix of math nodes,left delimiter=(,right delimiter=),inner sep=4pt,ampersand replacement=\&]
+{
+0      \&  \infty \& \infty \&  \infty \\
+\infty \&  1      \& \infty \&  \infty \\
+\infty \&  \infty \& 0      \&  \infty \\
+\infty \&  \infty \& \infty \&  0      \\
+};
+\end{tikzpicture}
+\end{center}
+
+On remarque que $M(aa) = M(a)$. Ce qui implique que $M(aaaa...) = M(a)$ et donc que $M(aaaa...)_{(2,2)} = M(a)_{(2,2)}=1$. \\
+Or on peut observer sur l'automate que la lecture répétée de la lettre $a$ en bouclant sur l'état 2 va causer un coût croissant dépendant du nombre de $a$ lus. Il faut donc ajouter un traitement supplémentaire aux matrices dont la multiplication avec elles-même dans R donne la même matrice. On appelle ces matrice des matrices idempotentes.\\\\
+Le dernier chapitre de cette partie théorique va donc consister à la détection des coût instables dans les matrices idempotente.
 
 \chapter{Matrices stables}
 
