@@ -281,10 +281,17 @@ $M(aa) = M(a) \times M(a) =$
 \end{center}
 
 On remarque que $M(aa) = M(a)$. Ce qui implique que $M(aaaa...) = M(a)$ et donc que $M(aaaa...)_{(2,2)} = M(a)_{(2,2)}=1$. \\
-Or on peut observer sur l'automate que la lecture répétée de la lettre $a$ en bouclant sur l'état 2 va causer un coût croissant dépendant du nombre de $a$ lus. Il faut donc ajouter un traitement supplémentaire aux matrices dont la multiplication avec elles-même dans R donne la même matrice. On appelle ces matrice des matrices idempotentes.\\\\
+Or on peut observer sur l'automate que la lecture répétée de la lettre $a$ en bouclant sur l'état 2 va causer un coût croissant dépendant du nombre de $a$ lus. Pour distinguer ce genre de coût de ceux qui ne causent pas ce problème de croissance infinie, il faut donc ajouter un traitement supplémentaire aux matrices dont la multiplication avec elles-même dans R donne la même matrice. On appelle ces matrices des matrices idempotentes.\\\\
 Le dernier chapitre de cette partie théorique va donc consister à la détection des coût instables dans les matrices idempotente.
 
 \chapter{Matrices stables}
+Nous avons donc vu que lorsqu'une matrice est idempotente, il y a un risque que certaines positions voient leur coût exploser à chaque lecture du mot de cette matrice. Il s'avère donc nécessaire de représenter l'itération d'un mot d'une matrice. \\
+Au lieu d'écrire $M(aaaaa...)$ comme nous l'avons fait dans le chapitre précédent, nous allons introduire un nouveau symbole afin de simplifier la notation et écrire ce genre de matrices de la façon suivante : $M(a^{\#})$.\\
+
+Soit $w$ un mot, tel que $M(w)$ idempotente, la matrice $M(w^{\#})$ va donc contenir les coûts dans $\R$ d'un nombre quelconque de lectures successives du mot $w$.\\
+Dans ces matrices que nous appellerons simplement matrice dièse, il reste donc à déterminer la valeur de chaque position. Dans son article, Simon défini le terme "ancrée" pour définir les positions dont le coût est stable ou va se stabiliser au bout d'un nombre fini d'itération.\\
+
+Lemme : \textit{Soit $w$ un mot tel que $M(w)$ idempotente dans $\R$. Si $M(w)_{(i,j)} = 0$ alors la position $(i,j)$ est ancrée. De plus, si il existe $k \in [1,\; n]$ tel que $M(w)_{(k,k)} = 0 \leq M(w)_{(i,j)} = max(M(w)_{(i,k)}, \; M(w)_{(k,j)})$ alors la position $(i,j)$ est ancrée.}\\
 
 \part{Exécution détaillée du programme}
 
