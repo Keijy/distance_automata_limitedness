@@ -304,7 +304,7 @@ Dans notre sujet, la matrice représente la matrice d'incidence. Les indices dan
 
 D'après ce fait,on construit la matrice avec la fonction créer\_matrice(int taille). La matrice contient la taille le mot et un tableau de deux dimensions du type int. alors ,on alloue le mémoire successivement pour la structure de la matrice et le tableau d'int de deux dimensions.\\
 
-Également, pour la destruction, si la matrice est deja NULL, on la laisse tranquille, sinon on des-alloue la structure de la matrice ainsi pour le tableau de deux dimensions.\\
+Également, pour la destruction, si la matrice est déjà NULL, on la laisse tranquille, sinon on des-alloue la structure de la matrice ainsi pour le tableau de deux dimensions.\\
 
 Pour accéder dans la matrice, on a trois successeurs pour obtenir les informations sur le tableau, le mot et la taille de la matrice. \\
 
@@ -319,14 +319,68 @@ Car on construit le mot par la manipulation de concaténation en collant les sou
 
 La fonction print\_matrice\_in\_R permet d'afficher la matrice de façon mathématique. en précise, on définit INFINI est 3 et OMÉGA est 2 dans Matrice.h, ici on reconverti INFINI et OMÉGA comme $\infty$ et $\omega$ .\\
 
-la fonction multiplication fais pas la multiplication normale de matrice. en fait on prend deux matrices de la meme taille comme parametres, en suite, on cree un nouveau matrice en attend a retourner.on initialise tous les elelment dans la tableau a -1.puis on  parcours toutes les case des deux tableaux de chacun.
+La fonction multiplication fais pas la multiplication normale de matrice. en fait on prend deux matrices de la même taille comme paramètres m1 et m2, en suite, on crée un nouveau matrice m3.on initialise tous les élément de m3 a -1.puis on  parcours toutes les cases des deux tableaux de matrice m1 et m2. on compare les valeurs de la même position de ces deux matrices et redéfinie la valeur de m3 comme le max de m1 et m2,si sa valeur est  -1.sinon on définit la valeur comme  le min des deux matrices dans la même position. \\
 
+Le principe de la fonction est_idempotent est facile, on fait la multiplication du matrice dans R et on teste si le produit généré reste pareille comme ce matrice.si c'est vrai alors c'est une matrice idempotent.\\
+
+La fonction stable est produise par le théorème de \\
+
+
+La fonction creer\_mattice\_diese calcul et renvoie la matrice dièse d'une matrice dans R.si la matrice n'est pas dans R,alors on peut pas le traiter,on retourne NULL et print "erreur".si c'est d'une matrice dans R,on crée une nouvelle  et le remplie la matrice par la règle suivante:
+si tab[i][j] vaut 1 et a la position i j,la valeur est stable,alors on définit tab[i][j] a OMEGA.\\
 
 \chapter{Structure de stockage des matrices}
 
-(mautomate, descrption des fonctions de création)
+(mautomate, description des fonctions de création)
+La structure de matrice automate inclut un automate,une table qui contient les états,une table qui contient les lettres.\\
+
+Il y a des accesseurs pour lire le coût,la lettre,le origine de la clé.la fonction comparer\_cle utilise ces accesseur pour comparer deux clés données.elle va retourner 0 si et seulement si les deux clés sont équaux.\\
+
+Pour créer une automate,on tout d'abord alloue la mémoire nécessaire pour lui.en suite, on crée et initialise 6 choses pour cette automate: l'ensemble des états,l'ensemble des alphabets,l'ensemble des transitions,l'ensemble des états initiaux,l'ensemble des états finaux et l'ensemble des états vide.\\
+
+Également,pour détruire une automate,on libère successivement les 6 choses dans l'automate et libère l'automate lui-même a la fin.\\
+
+On a tous les outils pour accéder l'automate et le modifier.par exemple,on a get\_etats pour lire tous les états dans l'automate.on a aussi ajouter\_etats pour insérer une nouveau états dans l'automate.ainsi pour les autres choses dans l'automate.\\
+
+La fonction copier\_automate retourner une copie de l'automate donnée,on crée et alloue une automate qui s'appelle res,en suites ,on remplie la même contenu  dans l'automate copie en parcourant successivement les 6 choses notées dessus.par exemple,pour copier les états dans la nouvelle automate,on parcourt l'états un par un en lisant l'ensemble des états avec l'accesseur get\_etats,et ajouter l'états lu dans l'automate res avec la fonction ajouter\_etat.on le boucle si le suivant de cet ensemble parcourir par nous n'est pas vide.on fais la même choses pour les autres.a la fin,on retourne cet automate res.\\
+
+la fonction creer\_automate\_etat\_different renvoie l'automatedestination,dont le nom de tous les etat est different du nom des etats de l'automate source en utlisant la fonctions get\_etat\_libere,on parcourt tous les etats dans l'automate,s'il y a des etats non utilisee, on prend ce etat qui est libre et non utilisee pour remplace le ancien etat dans l'automate source en gardant tous ces ancient transitions lient avec les autres etats.
+
+la fonction creer\_automate\_etat\_0_n
+
+la fonction translater_etat
+
+print\_automate
+
+print\_mautomate
+
+supprimer\_etats
+
+ajouter\_transitions
+
+est\_complet
+
+completer\_automate
+
+calcule\_diese\_mautomate
+
+est\_limite
+
+la fonction creer\_mautomate 
+
+liberer\_mautomate
+
+
+
 
 \chapter{Résolution du problème de limitedness}
+
+Dans la fonction main du fichier test_automate.c,on crée une automate comme on veux en ajoutant des états initiaux,des états finaux et des transitions qui lient les différent états.en suites,on va tester cet automate ,regarde s'il est limite.\\
+
+tout d'abord,on va essayer d'afficher cet automate dans un graphe visuelle,on inclue un outils pour afficher l'automate qui s'appelle  graphiz, ce outils va lire un fichier formelle qui comprendre les informations de l'automate.\\
+on utilise la fonction creergraphe pour créer un fichier auto.gv qui porte tous les informations formelle dépend notre automate construit au début.en utilisant ce fichier auto.gv et la commande de graphiz "dot -Tpng auto.gv -o auto.png" on obtient le graphe auto.png.on le ouvrir avec le logiciel  d'image visionneur par défaut .\\
+en suite,la première étape pour test la limite de l'automate est la création du mautomate.on afficher la limite de l'automate avec la fonction est\_limite.s'il n'est pas limite,on retourne le premier matrice qui provoque le cout infini de cet automate.on print le mautomate a la fin.
+
 
 \bibliographystyle{abbrv}
 \bibliography{limitedness}
