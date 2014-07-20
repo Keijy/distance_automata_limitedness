@@ -460,8 +460,10 @@ liberer\_mautomate
 Dans la fonction main du fichier test_automate.c,on crée une automate comme on veux en ajoutant des états initiaux,des états finaux et des transitions qui lient les différent états.en suites,on va tester cet automate ,regarde s'il est limite.\\
 
 tout d'abord,on va essayer d'afficher cet automate dans un graphe visuelle,on inclue un outils pour afficher l'automate qui s'appelle  graphiz, ce outils va lire un fichier formelle qui comprendre les informations de l'automate.\\
+
 on utilise la fonction creergraphe pour créer un fichier auto.gv qui porte tous les informations formelle dépend notre automate construit au début.en utilisant ce fichier auto.gv et la commande de graphiz "dot -Tpng auto.gv -o auto.png" on obtient le graphe auto.png.on le ouvrir avec le logiciel  d'image visionneur par défaut .\\
-en suite,la première étape pour test la limite de l'automate est la création du mautomate.on afficher la limite de l'automate avec la fonction est\_limite.s'il n'est pas limite,on retourne le premier matrice qui provoque le cout infini de cet automate.on print le mautomate a la fin.
+
+en suite,la première étape pour test la limite de l'automate est la création du mautomate.on afficher la limite de l'automate avec la fonction est\_limite.s'il n'est pas limite,on retourne le premier matrice qui provoque le cout infini de cet automate.on print le mautomate a la fin.\\
 
 
 \bibliographystyle{abbrv}
