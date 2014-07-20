@@ -144,7 +144,7 @@ Cet automate est-il limité ? Plus formellement :
 $\exists ?B \in \N$ tel que $\forall w \in L(\Ref), \; cost(w)\le B$\\
 \end{center}
 
-La réponse n'est évidemment pas trivial. C'est pourquoi nous allons utiliser des matrice pour représenter les différents coûts pour une lecture de lettres. La matrice $M(a)$ va par exemple contenir le coût de la lecture de la lettre $a$ depuis tout les états de l'automate de la manière suivante :\\
+La réponse n'est évidemment pas triviale. C'est pourquoi nous allons utiliser des matrices pour représenter les différents coûts pour une lecture de lettres. La matrice $M(a)$ va par exemple contenir le coût de la lecture de la lettre $a$ depuis tout les états de l'automate de la manière suivante :\\
 
 \[
 M_{i,j} = 
@@ -203,7 +203,7 @@ $M(b)=$
 \end{tikzpicture}
 \end{center}
 
-Ces matrices sont donc définies sur $\{\N \cup \infty\}$, nous les appellerons matrices de coûts. Leur fonctionnement est très simple : la numérotation de chaque ligne et de chaque colonne correspond aux états de l'automate. Par exemple, dans la matrice de coûts pour la lettre $b$, on a $M(b)_{(2,3)}=0$. Cela signifie que le coûts pour aller de l'état 2 à l'état 3 en lisant un $b$ est de 0, ce qu'on peut vérifier sur l'automate. \\
+Ces matrices sont donc définies sur $\{\N \cup \infty\}$, nous les appellerons matrices de coûts. Leur fonctionnement est très simple : la numérotation de chaque ligne et de chaque colonne correspond aux états de l'automate. Par exemple, dans la matrice de coûts pour la lettre $b$, on a $M(b)_{(2,3)}=0$. Cela signifie que le coût pour aller de l'état 2 à l'état 3 en lisant un $b$ est de 0, ce qu'on peut vérifier sur l'automate. \\
 
 Avant d'aller plus loin il est nécessaire de définir la structure algébrique qui est au cœur de l'algorithme de résolution du problème de limitedness, les semi-anneaux.\\
 Un semi-anneau est formé d'un ensemble $E$ muni de deux lois associatives, $\oplus$ et $\otimes$, et d'un élément neutre pour chaque loi. De plus, la première loi est commutative et la seconde est distributive sur la première.\\
@@ -281,11 +281,93 @@ $M(aa) = M(a) \times M(a) =$
 \end{center}
 
 On remarque que $M(aa) = M(a)$. Ce qui implique que $M(aaaa...) = M(a)$ et donc que $M(aaaa...)_{(2,2)} = M(a)_{(2,2)}=1$. \\
-Or on peut observer sur l'automate que la lecture répétée de la lettre $a$ en bouclant sur l'état 2 va causer un coût croissant dépendant du nombre de $a$ lus. Il faut donc ajouter un traitement supplémentaire aux matrices dont la multiplication avec elles-même dans R donne la même matrice. On appelle ces matrice des matrices idempotentes.\\\\
-Le dernier chapitre de cette partie théorique va donc consister à la détection des coût instables dans les matrices idempotente.
+Or on peut observer sur l'automate que la lecture répétée de la lettre $a$ en bouclant sur l'état 2 va causer un coût croissant dépendant du nombre de $a$ lus. \\\\
+Pour distinguer ce genre de coût de ceux qui ne causent pas ce problème de croissance infinie, il faut donc ajouter un traitement supplémentaire aux matrices dont la multiplication avec elles-même dans R donne la même matrice. On appelle ces matrices des matrices idempotentes.\\\\
+Le dernier chapitre de cette partie théorique va donc consister à la détection des coûts instables dans les matrices idempotentes.
 
 \chapter{Matrices stables}
+Nous avons donc vu que lorsqu'une matrice est idempotente, il y a un risque que certaines positions voient leur coût exploser à chaque lecture du mot de cette matrice. Il s'avère donc nécessaire de représenter l'itération d'un mot d'une matrice. \\
+Au lieu d'écrire $M(aaaaa...)$ comme nous l'avons fait dans le chapitre précédent, nous allons introduire un nouveau symbole afin de simplifier la notation et écrire ce genre de matrices de la façon suivante : $M(a^{\#})$.\\
 
+Soit $w$ un mot, tel que $M(w)$ idempotente, la matrice $M(w^{\#})$ va donc contenir les coûts dans $\R$ d'un nombre quelconque de lectures successives du mot $w$.\\
+Dans ces matrices que nous appellerons simplement matrices dièse, il reste donc à déterminer la valeur de chaque position. Dans son article, Simon défini le terme "ancrée" pour définir les positions dont le coût est stable ou va se stabiliser au bout d'un nombre fini d'itération.\\
+
+Lemme : \textit{Soit $w$ un mot tel que $M(w)$ idempotente dans $\R$. Si $M(w)_{(i,j)} = 0$ alors la position $(i,j)$ est ancrée. De plus, la position $(i,j)$ est ancrée si il existe $k \in [1,\; n]$ qui respecte les conditions suivantes :
+\begin{itemize}
+\item $M(w)_{(k,k)} = 0$
+\item $M(w)_{(i,j)} = max(M(w)_{(i,k)}, \; M(w)_{(k,j)}) = 1$
+\end{itemize}}
+$ $\\
+Graphiquement, cela se schématise de la façon suivante :
+\begin{center}
+\begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto]
+  \node[state] (i) {i};
+  \node[state] (k) [right of=i] {k};
+  \node[state] (j) [right of=k] {j};
+  \path[->]
+			(i)  edge [bend right]		node  [swap]   {1}    (j)
+				 edge [above]	node  [swap]   {0/1}    (k)
+			(k)  edge [loop above]	node           {0}  		()
+				 edge [above]	node  [swap]   {0/1}    (j);
+\end{tikzpicture}
+\end{center}
+$ $\\
+\begin{itemize}
+\item $M(w)_{(i,j)} = max(M(w)_{(i,k)}, \; M(w)_{(k,j)}) = 1$ signifie qu'on peut atteindre l'état $k$ en payant un coût fixe puis rejoindre en j avec un coût également fixe. 
+\item $M(w)_{(k,k)} = 0$ correspond à une boucle de coût 0 sur l'état k. Elle va permettre d'absorber les lectures successives de $w$.
+\end{itemize}
+$ $\\
+Cette configuration permet donc une lecture multiple d'un mot sans que le coût ne grandisse avec le nombre de lectures. D'un point de vue matricielle, il suffit d'appliquer le lemme pour chaque position de la matrice pour laquelle nous voulons obtenir sa "version dièse". Si une position n'est pas ancrée, on dit qu'elle est instable. On a donc :
+
+\[
+M(w^{\#})_{(i,j)} = 
+				\left\{
+					\begin{array}{l }
+						\omega\ ,\ \ si\ M(w)_{(i,j)} = 1 \ et\ (i,j)\ est\ instable\\
+						M(w)_{(i,j)}, \ \ sinon \\						
+					\end{array}
+				\right.
+\]
+
+Revenons maintenant sur notre automate $\Ref$. Nous avons vu que sa matrice $M(a)$ était idempotente et que par conséquent, il était nécessaire de déterminer sa stabilité.
+
+\begin{center}
+$M(a)=$
+\begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax ]
+\matrix(m)[matrix of math nodes,left delimiter=(,right delimiter=),inner sep=4pt,ampersand replacement=\&]
+{
+0      \&  \infty \& \infty \&  \infty \\
+\infty \&  1      \& \infty \&  \infty \\
+\infty \&  \infty \& 0      \&  \infty \\
+\infty \&  \infty \& \infty \&  0      \\
+};
+\end{tikzpicture}
+\end{center}
+
+On a $M(a)_{(2,2)} = 1$ et on remarque qu'on peut prendre $k=1$ ou $k= 3$ ou $k=4$ car on a $M(a)_{(1,1)} = M(a)_{(3,3)} = M(a)_{(4,4)} = 0$.\\
+Cependant, la deuxième condition du lemme n'est vérifiée pour aucun de ces $k$ : 
+\[\forall k \in \{1,\; 3,\; 4\},\ \ \ M(a)_{(i,j)} \neq max(M(a)_{(i,k)}, \; M(a)_{(k,j)})\]
+
+La position $(2,2)$ est donc instable, on peut alors déterminer la matrice $M(a^{\#})$ :
+\begin{center}
+$M(a^{\#})=$
+\begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax ]
+\matrix(m)[matrix of math nodes,left delimiter=(,right delimiter=),inner sep=4pt,ampersand replacement=\&]
+{
+0      \&  \infty \& \infty \&  \infty \\
+\infty \&  \omega \& \infty \&  \infty \\
+\infty \&  \infty \& 0      \&  \infty \\
+\infty \&  \infty \& \infty \&  0      \\
+};
+\end{tikzpicture}
+\end{center}
+$ $\\
+Nous sommes maintenant en possession de l'intégralité des éléments qui vont nous permettre de déterminer si un automate à distance est limité ou non. Comme nous l'avons vu, $\R$ est un semi-anneau défini sur un ensemble de 4 valeurs. Le principe de l'algorithme sera donc le calcul de l'intégralité des matrices de l'automate pour chacune de ses lettres, puis en cas d'impotence, il faudra calculer la matrice dièse correspondante.\\
+Une fois l'intégralité des matrices calculée, il ne reste qu'à regarder les valeurs situées dans l'intersection des états initiaux en ligne et des états finaux en colonne comme nous l'avons expliqué dans le chapitre 2. Si le minimum dans chacune de ces matrices est 0 ou 1, alors l'automate sera limité. Mais si l'une (ou plusieurs) d'entre elles a pour minimum $\omega$, alors l'automate ne sera pas limité et le mot correspondant à cette matrice sera celui qui causera le coût non limité.\\\\
+Le nombre de matrices calculé augmente très rapidement avec le nombre d'états puisque celui ci défini $n$, la taille des matrices. Le nombre de matrices possibles est donc égal à $4^{n^{2}}$.\\
+Pour $\Ref$ par exemple, on a $n=4$ et donc possiblement $4^{4^{2}} = 4\;294\;967\;296$ matrices.\\\\
+
+Une fois cette partie théorique assimilée, ils nous a donc fallu mettre en place des structures permettant le stockage important de matrices ainsi qu'un accès efficace à ces dernières. Nous allons donc dans cette deuxième partie décrire l'implémentation des différentes fonctions et structures que nous avons mis en place ainsi que les choix que nous avons fait pour, à la fois être efficace mais également conserver une certaine clarté dans le code pour que cette partie théorique soit visible au sein des fonctions. 
 \part{Exécution détaillée du programme}
 
 \chapter{Réutilisation du programme d'Adrien Boussicault}
