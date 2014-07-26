@@ -403,7 +403,7 @@ La fonction print\_matrice\_in\_R permet d'afficher la matrice de façon mathém
 
 La fonction multiplication fais pas la multiplication normale de matrice. en fait on prend deux matrices de la même taille comme paramètres m1 et m2, en suite, on crée un nouveau matrice m3.on initialise tous les élément de m3 a -1.puis on  parcours toutes les cases des deux tableaux de matrice m1 et m2. on compare les valeurs de la même position de ces deux matrices et redéfinie la valeur de m3 comme le max de m1 et m2,si sa valeur est  -1.sinon on définit la valeur comme  le min des deux matrices dans la même position. \\
 
-Le principe de la fonction est_idempotent est facile, on fait la multiplication du matrice dans R et on teste si le produit généré reste pareille comme ce matrice.si c'est vrai alors c'est une matrice idempotent.\\
+Le principe de la fonction est\_idempotent est facile, on fait la multiplication du matrice dans R et on teste si le produit généré reste pareille comme ce matrice.si c'est vrai alors c'est une matrice idempotent.\\
 
 La fonction stable est produise par le théorème de \\
 
@@ -416,27 +416,24 @@ si tab[i][j] vaut 1 et a la position i j,la valeur est stable,alors on définit 
 (mautomate, description des fonctions de création)
 La structure de matrice automate inclut un automate,une table qui contient les états,une table qui contient les lettres.\\
 
-Il y a des accesseurs pour lire le coût,la lettre,le origine de la clé.la fonction comparer\_cle utilise ces accesseur pour comparer deux clés données.elle va retourner 0 si et seulement si les deux clés sont équaux.\\
+Il y a des accesseurs pour lire le coût,la lettre,le origine de la clé.la fonction comparer\_cle utilise ces accesseur pour comparer deux clés données.elle va retourner 0 si et seulement si les deux clés sont égaux.\\
 
 Pour créer une automate,on tout d'abord alloue la mémoire nécessaire pour lui.en suite, on crée et initialise 6 choses pour cette automate: l'ensemble des états,l'ensemble des alphabets,l'ensemble des transitions,l'ensemble des états initiaux,l'ensemble des états finaux et l'ensemble des états vide.\\
 
-Également,pour détruire une automate,on libère successivement les 6 choses dans l'automate et libère l'automate lui-même a la fin.\\
+Également,pour détruire une automate,on libère successivement les 6 choses dans l'automate et libère l'automate lui-même à la fin.\\
 
 On a tous les outils pour accéder l'automate et le modifier.par exemple,on a get\_etats pour lire tous les états dans l'automate.on a aussi ajouter\_etats pour insérer une nouveau états dans l'automate.ainsi pour les autres choses dans l'automate.\\
 
-La fonction copier\_automate retourner une copie de l'automate donnée,on crée et alloue une automate qui s'appelle res,en suites ,on remplie la même contenu  dans l'automate copie en parcourant successivement les 6 choses notées dessus.par exemple,pour copier les états dans la nouvelle automate,on parcourt l'états un par un en lisant l'ensemble des états avec l'accesseur get\_etats,et ajouter l'états lu dans l'automate res avec la fonction ajouter\_etat.on le boucle si le suivant de cet ensemble parcourir par nous n'est pas vide.on fais la même choses pour les autres.a la fin,on retourne cet automate res.\\
+La fonction copier\_automate retourner une copie de l'automate donnée,on crée et alloue une automate qui s'appelle res,en suites ,on remplie la même contenu  dans l'automate copie en parcourant successivement les 6 choses notées dessus.par exemple,pour copier les états dans la nouvelle automate,on parcourt les états un par un en lisant l'ensemble des états avec l'accesseur get\_etats,et ajouter les états lus dans l'automate res avec la fonction ajouter\_etat.on le boucle si le suivant de cet ensemble parcourir par nous n'est pas vide.on fais la même choses pour les autres.à la fin,on retourne cet automate res.\\
 
-la fonction creer\_automate\_etat\_different renvoie l'automatedestination,dont le nom de tous les etat est different du nom des etats de l'automate source en utlisant la fonctions get\_etat\_libere,on parcourt tous les etats dans l'automate,s'il y a des etats non utilisee, on prend ce etat qui est libre et non utilisee pour remplace le ancien etat dans l'automate source en gardant tous ces ancient transitions lient avec les autres etats.
+la fonction creer\_automate\_etat\_different renvoie l'automate destination,dont le nom de tous les etat est different du nom des états de l'automate source en utilisant la fonctions get\_etat\_libere,on parcourt tous les états dans l'automate,s'il y a des états non utilisée, on prend ce état qui est libre et non utilisée pour remplace le ancien état dans l'automate source en gardant tous ces ancien transitions lient avec les autres états.la fonction creer\_automate\_etat\_0\_n a la même fonctionnalité,elle renomme les états en entier de zero à n.\\
 
-la fonction creer\_automate\_etat\_0_n
+la fonction translater\_etat,on parcourt l'ensemble des états de l'automate,pour chaque  état on additionner l'entier n et ajouter l’état dans la nouvelle automate.on parcourt les translations d'automate,on copie successivement les clés.on lit chaque valeur des clés,ajouter la transition dans la nouvelle automate avec l'origine + n , fin + n , le coût et la lettre reste non changée.\\
 
-la fonction translater_etat
+la fonction print\_mautomate affiche l'automate des matrices puis affiche les matrices de l'automate avec un nombre que vous voulez.\\
 
-print\_automate
 
-print\_mautomate
-
-supprimer\_etats
+supprimer\_etats 
 
 ajouter\_transitions
 
@@ -448,22 +445,27 @@ calcule\_diese\_mautomate
 
 est\_limite
 
-la fonction creer\_mautomate 
 
-liberer\_mautomate
+//pour créer un mautomate à partir d'un automate a,on alloue un mémoire pour la structure de mautomate qu'il nécessaire .dans le mautomate on ajoute l'automate,le table des matrices des états ,le table des matrices des lettres.on créer un automate abis qui est de l'état 0 à n.
 
+//?
+
+//on complète l'automate des matrices de m,calcul le dièse de mautomate de m. Puis on libère l'automate abis.renvoie le mautomate m à la fin d'exécution de cette création.
+
+
+la libération de mémoire pour le mautomate libère l'automate au début ,puis on parcourt le iterateur de matrices d'états et libère tous les matrices.en suite ,il libère le table des états et le table des lettres.à la fin,on libère l'automate a.\\
 
 
 
 \chapter{Résolution du problème de limitedness}
 
-Dans la fonction main du fichier test_automate.c,on crée une automate comme on veux en ajoutant des états initiaux,des états finaux et des transitions qui lient les différent états.en suites,on va tester cet automate ,regarde s'il est limite.\\
+Dans la fonction main du fichier test\_automate.c,on crée une automate comme on veux en ajoutant des états initiaux,des états finaux et des transitions qui lient les différent états.en suites,on va tester cet automate ,regarde s'il est limite.\\
 
-tout d'abord,on va essayer d'afficher cet automate dans un graphe visuelle,on inclue un outils pour afficher l'automate qui s'appelle  graphiz, ce outils va lire un fichier formelle qui comprendre les informations de l'automate.\\
+Tout d'abord,on va essayer d'afficher cet automate dans un graphe visuelle,on inclue un outils pour afficher l'automate qui s'appelle  graphiz, ce outils va lire un fichier formelle qui comprendre les informations de l'automate.\\
 
 on utilise la fonction creergraphe pour créer un fichier auto.gv qui porte tous les informations formelle dépend notre automate construit au début.en utilisant ce fichier auto.gv et la commande de graphiz "dot -Tpng auto.gv -o auto.png" on obtient le graphe auto.png.on le ouvrir avec le logiciel  d'image visionneur par défaut .\\
 
-en suite,la première étape pour test la limite de l'automate est la création du mautomate.on afficher la limite de l'automate avec la fonction est\_limite.s'il n'est pas limite,on retourne le premier matrice qui provoque le cout infini de cet automate.on print le mautomate a la fin.\\
+en suite,la première étape pour test la limite de l'automate est la création du mautomate.on afficher la limite de l'automate avec la fonction est\_limite.s'il n'est pas limite,on retourne le premier matrice qui provoque le coût infini de cet automate.on print le mautomate a la fin.\\
 
 
 \bibliographystyle{abbrv}
