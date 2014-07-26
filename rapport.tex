@@ -9,6 +9,7 @@
 \usepackage{tikz}
 \usepackage{amssymb}
 \usepackage{xcolor}
+\usepackage{listings}
 
 \usetikzlibrary{arrows,positioning,automata,shadows,matrix,calc}
 
@@ -368,53 +369,116 @@ Le nombre de matrices calculé augmente très rapidement avec le nombre d'états
 Pour $\Ref$ par exemple, on a $n=4$ et donc possiblement $4^{4^{2}} = 4\;294\;967\;296$ matrices.\\\\
 
 Une fois cette partie théorique assimilée, ils nous a donc fallu mettre en place des structures permettant le stockage important de matrices ainsi qu'un accès efficace à ces dernières. Nous allons donc dans cette deuxième partie décrire l'implémentation des différentes fonctions et structures que nous avons mis en place ainsi que les choix que nous avons fait pour, à la fois être efficace mais également conserver une certaine clarté dans le code pour que cette partie théorique soit visible au sein des fonctions. 
+
 \part{Exécution détaillée du programme}
 
 \chapter{Réutilisation du programme d'Adrien Boussicault}
+Pour l'implémentation de l'algorithme, nous avons choisi de reprendre le code que nous avions utilisé lors du projet d'informatique théorique 2. Ce code comprenait une implémentation des automates de base, quelques fonctions de manipulation, ainsi qu'un module de table de hachage permettant le stockage de structures.\\ 
+Nous avons donc commencer par adapter le code existant afin que celui-ci puisse gérer les automates à distance. Voici les structures telles que nous les utilisons dans le programme:\\
 
-(présentation des différents modules et fonctions disponible + détails des ajouts pour la gestion des coût, de l'affichage et autres fonctions additionnelles que nous avons ajouté)
+\lstset{language={C},frame=tBlR,rulesep=1mm,framesep=5mm,framerule=2pt,xrightmargin=5mm,xleftmargin=5mm,rulecolor={\color[gray]{0.6}},rulesepcolor={\color[gray]{0.9}}}
+\begin{lstlisting}[frame=single]
+struct _Automate {
+	Ensemble * etats;
+	Ensemble * alphabet;
+	Table* transitions;
+	Ensemble * initiaux;
+	Ensemble * finaux;
+};
 
-\chapter{Création et manipulation des matrice}
-(creer\_matrice\_transition, multiplication, etc...)\\
+typedef struct _Cle {
+	int origine;
+	int lettre;
+	int cout;
+} Cle;
+\end{lstlisting}
+$ $\\
+Le nom et le type des variables permettent très facilement de comprendre chaque élément de ces structures. 
 
+Un automate est donc composé de quatre ensembles, \verb?etats?, \verb?alphabet?, \verb?initiaux? et \verb?finaux? et d'une table de hachage contenant les transitions. Les clés de cette table sont décrites dans la structure \verb?Cle? qui contient trois entiers explicites, \verb?origine?, \verb?lettre? et \verb?cout?.\\
+Dans la table \verb?transitions?, chaque clé est donc associé à un ensemble qui correspond aux état destination de la transition décrite par les valeurs de la clé. La variable \verb?cout? de la structure \verb?Cle? est la seule variable de structure que nous avons ajouté par rapport au code d'origine. Ensuite, il a fallu modifier toutes les fonctions de modification des automates pour qu'elles prennent en charge la gestion des coûts des transitions.\\
+Nous avons également ajouté un accesseur pour cette variable et modifier l'affichage des automate pour que celui-ci soit plus clair.\\
+
+Voici notre automate référence $\Ref$ affiché grâce à la fonction
+\begin{center}
+\verb?void print_automate( const Automate * automate )? :\\ 
+\end{center}
+
+\begin{verbatim}
+- Etats :       {0, 1, 2, 3, }
+- Initiaux :    {0, 1, 3, }
+- Finaux :      {1, 2, 3, }
+- Alphabet :    {a, b, }
+- Transitions : 
+{
+         {0} --> (a : 0) --> {0, }
+         {0} --> (b : 0) --> {0, 1, }
+         {1} --> (a : 1) --> {1, }
+         {1} --> (b : 0) --> {2, }
+         {2} --> (a : 0) --> {2, }
+         {2} --> (b : 0) --> {2, }
+         {3} --> (a : 0) --> {3, }
+         {3} --> (b : 1) --> {3, }
+  
+}
+\end{verbatim}
+$ $\\
+
+On distingue aisément les différents éléments de la structure et l'affichage est très similaire à l'affichage formel que nous avons présenté dans l'introduction. La structure \verb?Mautotmate? ainsi que les fonctions la concernant sont également des ajouts de notre part, nous aborderons leur description dans le chapitre 7.
+
+\chapter{Création et manipulation des matrices}
 %pourquoi on utilise l'arbre syntaxique?\\
 %aaaaa\\\\
 %aaaa
 % texmaker  F1 ->> sauvgarder et compiler a la meme fois
 
-Dans notre sujet, la matrice représente la matrice d'incidence. Les indices dans la matrice sont des étiquettes d'état. Du coup,dans notre cas,toutes les matrices sont de la forme carrée n x n ,  dont n est le nombre d'états.\\
+Comme nous l'avons vu dans la première partie, le cœur de l'algorithme de résolution du problème de limitedness repose sur la manipulation de matrices représentant les différents coûts de l'automate. Nous avons donc ajouté un module nommé \textit{"Matrice.c"} contenant la structure et les fonctions nécessaires aux manipulations vu dans la première partie. Voici tout d'abord la structure \verb?Matrice? telle que nous l'avons implémenté : \\
 
-D'après ce fait,on construit la matrice avec la fonction créer\_matrice(int taille). La matrice contient la taille le mot et un tableau de deux dimensions du type int. alors ,on alloue le mémoire successivement pour la structure de la matrice et le tableau d'int de deux dimensions.\\
+\begin{lstlisting}[frame=single]
+struct _Matrice {
+  int** tab;
+  tree mot;
+  int taille;
+};
+\end{lstlisting}
+$ $\\\\
+On construit ensuite la matrice avec la fonction \verb?creer_matrice(int taille)?. Toutes les matrices sont de la forme carrée $n \times n$ , avec n le nombre d'états de l'automate. C'est pourquoi la taille de la matrice est contenue dans une seule variable. La matrice contient également le mot correspondant à la lecture de la matrice ainsi qu'un tableau à deux dimensions du type int. On alloue alors la mémoire pour la structure de la matrice puis pour le tableau.\\
 
-Également, pour la destruction, si la matrice est déjà NULL, on la laisse tranquille, sinon on des-alloue la structure de la matrice ainsi pour le tableau de deux dimensions.\\
+Pour la destruction, on libère les structures dans l'ordre inverse avec lequel on les à alloué. Sont également présents, trois accesseurs pour chacune des variables de la structure ainsi qu'une fonction d'affichage prenant en compte $\omega$ et $\infty$ que nous avons défini respectivement à $2$ et $3$, comme variables globales, dans \textit{"Matrice.h"}.
 
-Pour accéder dans la matrice, on a trois successeurs pour obtenir les informations sur le tableau, le mot et la taille de la matrice. \\
+On observe que dans notre structure \verb?Matrice? la variable \verb?mot? est de type \verb?tree?, c'est une structure que nous avons implémenté dans \textit{"arbresynthaxique.c"} afin de manipuler facilement et efficacement les mots d'une matrice.\\
+En effet, nous avions débuté notre code par une simple structure \verb?char? pour contenir les mots, mais celle-ci s'est révélée bien peu efficace lorsque qu'il a fallu calculer une matrice dièse ou simplement pour la multiplication de deux matrices. \\\\
+Avec cette structure \verb?tree?, nous représentons les mots sous forme d'arbres avec trois types de sommets différents :
+\begin{itemize}
+\item Une lettre de l'alphabet de l'automate qui est un sommet avec aucun fils
+\item Le dièse qui est un sommet avec un seul fils, ce qui permet efficacement de transformer une expression $x$ en $x^{\#}$.
+\item Le point qui correspond à la concaténation de deux expressions et qui à donc deux fils
+\end{itemize}
+$\ $
 
-vous voyez bien que dans notre structure de la matrice il y a un "mot" qui est du type tree, ce mot est pour exprimer la matrice sous forme d'expression rationnel. le mot contient trois genres de choses: 
+Ainsi on peut manipuler nos mots sans avoir à faire des manipulations fastidieuses et coûteuses de chaînes de caractères. Cette structure nous permet donc d'effectuer des concaténation et de mettre une matrice sous sa forme \textit{"dièse"} en temps constant $O(1)$.\\
 
-	l'alphabet  (dans R a,b,c,etc.)
+Revenons maintenant à notre module \verb?Matrice.c? afin de passer en revue les fonctions principales pour la manipulation de matrices. \\
 
-    la dièse '$\#$'  (la répétition comme * dans l'expression rationnel)
+\verb?Matrice multiplication_in_MnR(Matrice m1,Matrice m2)?\\\\
+Cette fonction effectue la multiplication matricielle dans l'ensemble $\R$ que nous avons défini dans le chapitre 3. Les matrices \verb?m1? et \verb?m2? sont forcément de même taille puisqu'elles concernent le même automate.\\
+On rappelle que les lois de $\R$ sont $a \oplus b = min(a,\;b)$ et $a \otimes b = max(a,\;b)$. On crée donc une nouvelle matrice m3 qu'on initialise à -1 pour chacune de ses positions, ce qui va nous permettre d'extraire la valeur maximum d'une des deux matrices lors de la multiplication.\\
 
-    le point "."  ("."signifie la concaténation)\\
-Car on construit le mot par la manipulation de concaténation en collant les sous mot, on include arbresytaxique.h pour bien résoudre le problem de construction du mot.\\
+\verb?int est_idempotent(Matrice m)?\\\\
+Le test d'idempotence est très simple puisque comme nous l'avons vu dans la première partie, il suffit de multiplier la matrice avec elle-même, puis de tester l'égalité.\\
 
-La fonction print\_matrice\_in\_R permet d'afficher la matrice de façon mathématique. en précise, on définit INFINI est 3 et OMÉGA est 2 dans Matrice.h, ici on reconverti INFINI et OMÉGA comme $\infty$ et $\omega$ .\\
+\verb?int stable(int i,int j,Matrice m)?\\\\
+Cette fonction résulte directement du lemme énoncé dans le chapitre 4. En effet, elle se contente d'effectuer, pour chaque position, tous les tests nécessaires afin que les conditions du lemme soient respectées.\\\\
 
-La fonction multiplication fais pas la multiplication normale de matrice. en fait on prend deux matrices de la même taille comme paramètres m1 et m2, en suite, on crée un nouveau matrice m3.on initialise tous les élément de m3 a -1.puis on  parcours toutes les cases des deux tableaux de matrice m1 et m2. on compare les valeurs de la même position de ces deux matrices et redéfinie la valeur de m3 comme le max de m1 et m2,si sa valeur est  -1.sinon on définit la valeur comme  le min des deux matrices dans la même position. \\
+\verb?Matrice creer_matrice_diese(Matrice m)?\\\\
+Comme son nom l'indique, la fonction \verb?creer_mattice_diese? calcul et renvoie la matrice dièse d'une matrice $m$ dans $\R$. Comme vu dans le chapitre 4, il suffit de tester la stabilité de la position si $tab[i][j] = 1$. Si la position n'est pas stable, on remplace sa valeur par $\omega$ sinon, on la laisse à 1.\\\\\\
 
-Le principe de la fonction est\_idempotent est facile, on fait la multiplication du matrice dans R et on teste si le produit généré reste pareille comme ce matrice.si c'est vrai alors c'est une matrice idempotent.\\
-
-La fonction stable est produise par le théorème de \\
-
-
-La fonction creer\_mattice\_diese calcul et renvoie la matrice dièse d'une matrice dans R.si la matrice n'est pas dans R,alors on peut pas le traiter,on retourne NULL et print "erreur".si c'est d'une matrice dans R,on crée une nouvelle  et le remplie la matrice par la règle suivante:
-si tab[i][j] vaut 1 et a la position i j,la valeur est stable,alors on définit tab[i][j] a OMEGA.\\
+Grâce à ce module, nous avons maintenant les éléments nécessaires pour manipuler nos matrices définies dans $\R$. Cependant, nous avons vu qu'un très grand nombre de ces matrices allait être calculé. C'est pourquoi il nous a fallu trouver un moyen d'effectuer tous ces calculs de la manière la plus efficace possible.
 
 \chapter{Structure de stockage des matrices}
 
 (mautomate, description des fonctions de création)
-La structure de matrice automate inclut un automate,une table qui contient les états,une table qui contient les lettres.\\
+La structure de matrice automate inclut un automate,une tabs qui contient les états,une table qui contient les lettres.\\
 
 Il y a des accesseurs pour lire le coût,la lettre,le origine de la clé.la fonction comparer\_cle utilise ces accesseur pour comparer deux clés données.elle va retourner 0 si et seulement si les deux clés sont égaux.\\
 
