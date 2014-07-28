@@ -477,6 +477,103 @@ Grâce à ce module, nous avons maintenant les éléments nécessaires pour mani
 
 \chapter{Structure de stockage des matrices}
 
+
+Le nombre de matrice calculé étant potentiellement très grand, il nous a donc fallu réfléchir à une méthode permettant un calcul optimisé de l'intégralité des matrice de l'automate. C'est à dire qu'il faut organiser les matrice de sorte qu'on sache quelles sont celles qui reste à calculer et éviter de calculer une même matrice plusieurs fois. \\\\
+La structure que nous avons choisis n'est autre qu'un automate... Son fonctionnement n'est pas évident mais cette nouvelle structure va simplifier grandement l'algorithme, notamment la condition d'arrêt qui signifie que toute les matrices ont bien été calculée.\\
+Nous avons appelé cet automate particulier un \textit{"mautomate"} car c'est simplement un automate qui contient des matrices. Mais avant de présenter le code de cette structure, nous allons expliquer comment celle-ci est pensée. Pour cela nous allons reprendre notre automate $\Ref$ :\\\\
+
+\begin{center}
+\begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto]
+   \node[state, initial]			 (A)	                      {1};
+   \node[state, initial, accepting] (B)   [right=of A]           {2};
+   \node[state, accepting]			 (C)	[right=of B]         {3};
+   \node[state, initial, accepting] (D)   [right=of C]       {4};
+ 
+  \path[->]
+             (A)  edge [bend right]   node  [swap]   {b:0}    (B)
+                  edge [loop above]   node           {a,b:0}  ()
+             (B)  edge [loop above]   node           {a:1}    ()
+                  edge [bend right]   node  [swap]   {b:0}    (C)
+             (C)  edge [loop above]   node           {a,b:0}  ()
+             (D)  edge [loop above]   node           {a:0}    ()
+                  edge [loop below]   node           {b:1}    ();
+               
+\end{tikzpicture}
+\[ Automate\; \Ref\]
+\end{center}
+$\ $\\
+
+Dans un premier temps, nous allons créer un état initial qui sera le départ de tout calcul matriciel.
+
+\begin{center}
+\begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto]
+   \node[state, initial]			 (I)	                      {I};
+ \end{tikzpicture}
+\end{center}
+$\ $\\
+
+L'alphabet sera le même que l'automate sur lequel on travail, ici ${a,\;b}$. Depuis l'état initial, nous allons créer une transition pour chaque lettre de cet alphabet. La destination de ces transitions sera la matrice correspondant à la lettre de la transition. Pour $\Ref$ cela nous donne l'automate suivant :
+
+\begin{center}
+\begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto]
+   \node[state, initial]			 (I)	                      {I};
+   \node[state]			 (1)	[above right of=I]    {M(a)};
+   \node[state]			 (2)	[below right of=I]    {M(b)};
+   
+   \path[->]
+             (I)  edge   node  [swap]   {a}    (1)
+                  edge   node  [swap]   {b}    (2);
+               
+\end{tikzpicture}
+\end{center}
+$\ $\\
+
+Maintenant, le but va être de rendre l'automate complet. Pour tout état $M(x_{1})$, $M(x_{2})$ et pour toute lettre $l$ de l'alphabet, Nous aurons donc des transitions de la forme $(M(x_{1}),\; l) \rightarrow M(x_{2})$  avec $M(x_{2}) = M(x_{1}) \times M(l)$\\
+Voyons ce que cela donne pour l'état $M(b)$ :
+
+\begin{center}
+\begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto]
+   \node[state, initial]			 (I)	                      {I};
+   \node[state]			 (1)	[above right of=I]    	{M(a)};
+   \node[state]			 (2)	[below right of=I]    	{M(b)};
+   \node[state]			 (3)	[above right of=2]    	{M(ba)};
+   \node[state]			 (4)	[right of=2]			{M(bb)};
+   
+   \path[->]
+             (I)  edge   node  [swap]   {a}    (1)
+                  edge   node  [swap]   {b}    (2)
+             (2)  edge   node  [swap]   {a}    (3)
+                  edge   node  [swap]   {b}    (4);
+               
+\end{tikzpicture}
+\end{center}
+$\ $\\
+ 
+Pour $M(a)$ le traitement n'est pas le même. En effet nous avons vu dans le chapitre X que la matrice $M(a)$ était idempotente. Cela signifie tout d'abord qu'il va y avoir une boucle sur l'état $M(a)$ pour la lettre $a$. Mais cela signifie également, comme nous l'avons vu dans le chapitre X, que nous allons devoir calculer la matrice $M(a^{\#})$. Deux cas s'offre à nous : si $M(a^{\#}) = M(a)$ alors la boucle suffit. Mais si ce n'est pas le cas, il fait alors traiter $a^{\#}$ comme une nouvelle lettre de l'automate et recompléter en conséquence : 
+
+\begin{center}
+\begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto]
+   \node[state, initial]			 (I)	                      {I};
+   \node[state]			 (1)	[above right of=I]    	{M(a)};
+   \node[state]			 (2)	[right of=I]    		{M(b)};
+   \node[state]			 (3)	[right of=2]	    	{M(ba)};
+   \node[state]			 (4)	[below right of=2]		{M(bb)};
+   \node[state]			 (5)	[right of=1]   		 	{M(ab)};
+   \node[state]			 (6)	[below right of=I]		{M(a\#)};
+   
+   \path[->]
+             (I)  edge   node  [swap]   {a}    (1)
+                  edge   node  [swap]   {b}    (2)
+                  edge   node  [swap]   {a\#}   (6)
+             (1)  edge   node  [swap]   {a}    (1)
+                  edge   node  [swap]   {b}    (5)
+             (2)  edge   node  [swap]   {a}    (3)
+                  edge   node  [swap]   {b}    (4);
+               
+\end{tikzpicture}
+\end{center}
+$\ $\\
+
 (mautomate, description des fonctions de création)
 La structure de matrice automate inclut un automate,une tabs qui contient les états,une table qui contient les lettres.\\
 
