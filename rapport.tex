@@ -549,7 +549,7 @@ Voyons ce que cela donne pour l'état $M(b)$ :
 \end{center}
 $\ $\\
  
-Pour $M(a)$ le traitement n'est pas le même. En effet nous avons vu dans le chapitre X que la matrice $M(a)$ était idempotente. Cela signifie tout d'abord qu'il va y avoir une boucle sur l'état $M(a)$ pour la lettre $a$. Mais cela signifie également, comme nous l'avons vu dans le chapitre X, que nous allons devoir calculer la matrice $M(a^{\#})$. Deux cas s'offre à nous : si $M(a^{\#}) = M(a)$ alors la boucle suffit. Mais si ce n'est pas le cas, il fait alors traiter $a^{\#}$ comme une nouvelle lettre de l'automate et recompléter en conséquence : 
+Pour $M(a)$ le traitement n'est pas le même. En effet nous avons vu dans le chapitre X que la matrice $M(a)$ était idempotente. Cela signifie tout d'abord qu'il va y avoir une boucle sur l'état $M(a)$ pour la lettre $a$. Mais cela signifie également, comme nous l'avons vu dans le chapitre X, que nous allons devoir calculer la matrice $M(a^{\#})$. Deux cas sont possibles : si $M(a^{\#}) = M(a)$ alors la boucle suffit. Mais si ce n'est pas le cas, il fait alors traiter $a^{\#}$ comme une nouvelle lettre de l'automate et recompléter en conséquence : 
 
 \begin{center}
 \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto]
@@ -565,7 +565,7 @@ Pour $M(a)$ le traitement n'est pas le même. En effet nous avons vu dans le cha
              (I)  edge   node  [swap]   {a}    (1)
                   edge   node  [swap]   {b}    (2)
                   edge   node  [swap]   {a\#}   (6)
-             (1)  edge   node  [swap]   {a}    (1)
+             (1)  edge   [loop above]    node  [swap]   {a}    (1)
                   edge   node  [swap]   {b}    (5)
              (2)  edge   node  [swap]   {a}    (3)
                   edge   node  [swap]   {b}    (4);
@@ -574,59 +574,45 @@ Pour $M(a)$ le traitement n'est pas le même. En effet nous avons vu dans le cha
 \end{center}
 $\ $\\
 
-(mautomate, description des fonctions de création)
+
+On itère ce processus jusqu'à ce que le mautomate soit complet. Celui-ci grandi très rapidement à cause des matrices idempotentes qui ont une chance de rajouter une lettre dans l'alphabet. C'est donc cette structure que nous avons rajouté dans \textit{"automate.c"} et qui est au coeur de l'algorithme de résolution du problème de limitedness.\\
+
+La structure \verb?Mautomate? est composée de trois éléments comme suit :
+
+\begin{lstlisting}[frame=single]
+struct _Matrice_Automate{
+  Automate * automate;
+  Table* t_matrices_etats;
+  Table* t_matrices_lettres;
+};
+\end{lstlisting}
+$ $\\\\
+
+Il y a donc un automate et deux table de hachage : \verb?t_matrices_etats? qui stock l'intégralité des matrices calculées et dont la clé correspond à l'état de l'automate qui la contient.La seconde table de hachage, \verb?t_matrices_lettres?, stock également des matrices mais seulement celles qui correspondent à une lettre et la clé est donc cette même lettre. Cette table permet d’accéder facilement aux matrices de base lors du calcul de nouvelles matrice pour chaque transition.
 La structure de matrice automate inclut un automate,une tabs qui contient les états,une table qui contient les lettres.\\
 
-Il y a des accesseurs pour lire le coût,la lettre,le origine de la clé.la fonction comparer\_cle utilise ces accesseur pour comparer deux clés données.elle va retourner 0 si et seulement si les deux clés sont égaux.\\
+Ainsi, n'avons plus qu'à créer un mautomate à partir de l'automate, puis analyser chacune des matrices afin de détecter si l'une d'elle cause un coût $\omega$, c'est-à-dire un coup non-borné.
+\\\\
+Notre fonction de création, \verb?creer_mautomate(Automate* a)?, alloue la mémoire nécessaire à la structure et effectue également chacune des étapes pour obtenir le mautomate complet à la sortie de la fonction.\\
+Nous appelons donc \verb?completer_automate_des_matrices(Mautomate* a)? après l'allocation. Elle fait toutes les multiplications matricielles pour l'alphabet de l'automate et ce, sans s'occuper des matrices idempotentes et donc des dièses. En effet, c'est \verb?void calculer_diese_mautotmate(Mautomate * ma)? qui effectue ce travail, c'est la seconde fonction appliquée lors de la création. \\
+Celle-ci parcourt l'intégralité du mautomate à la recherche de matrices idempotentes afin de calculer les matrices dièses correspondantes. Comme nous l'avons vu ce calcul peut générer une nouvelle lettre dans l'alphabet du mautomate. C'est pourquoi dans ce cas la, il est nécessaire d'appeler à nouveau la fonction précédente pour compléter le mautomate. On alterne ainsi les appels de ces fonction jusqu'à ce que l'automate soit complet, avec l'intégralité des matrices de transition.\\
 
-Pour créer une automate,on tout d'abord alloue la mémoire nécessaire pour lui.en suite, on crée et initialise 6 choses pour cette automate: l'ensemble des états,l'ensemble des alphabets,l'ensemble des transitions,l'ensemble des états initiaux,l'ensemble des états finaux et l'ensemble des états vide.\\
-
-Également,pour détruire une automate,on libère successivement les 6 choses dans l'automate et libère l'automate lui-même à la fin.\\
-
-On a tous les outils pour accéder l'automate et le modifier.par exemple,on a get\_etats pour lire tous les états dans l'automate.on a aussi ajouter\_etats pour insérer une nouveau états dans l'automate.ainsi pour les autres choses dans l'automate.\\
-
-La fonction copier\_automate retourner une copie de l'automate donnée,on crée et alloue une automate qui s'appelle res,en suites ,on remplie la même contenu  dans l'automate copie en parcourant successivement les 6 choses notées dessus.par exemple,pour copier les états dans la nouvelle automate,on parcourt les états un par un en lisant l'ensemble des états avec l'accesseur get\_etats,et ajouter les états lus dans l'automate res avec la fonction ajouter\_etat.on le boucle si le suivant de cet ensemble parcourir par nous n'est pas vide.on fais la même choses pour les autres.à la fin,on retourne cet automate res.\\
-
-la fonction creer\_automate\_etat\_different renvoie l'automate destination,dont le nom de tous les etat est different du nom des états de l'automate source en utilisant la fonctions get\_etat\_libere,on parcourt tous les états dans l'automate,s'il y a des états non utilisée, on prend ce état qui est libre et non utilisée pour remplace le ancien état dans l'automate source en gardant tous ces ancien transitions lient avec les autres états.la fonction creer\_automate\_etat\_0\_n a la même fonctionnalité,elle renomme les états en entier de zero à n.\\
-
-la fonction translater\_etat,on parcourt l'ensemble des états de l'automate,pour chaque  état on additionner l'entier n et ajouter l’état dans la nouvelle automate.on parcourt les translations d'automate,on copie successivement les clés.on lit chaque valeur des clés,ajouter la transition dans la nouvelle automate avec l'origine + n , fin + n , le coût et la lettre reste non changée.\\
-
-la fonction print\_mautomate affiche l'automate des matrices puis affiche les matrices de l'automate avec un nombre que vous voulez.\\
-
-
-supprimer\_etats 
-
-ajouter\_transitions
-
-est\_complet
-
-completer\_automate
-
-calcule\_diese\_mautomate
-
-est\_limite
-
-
-//pour créer un mautomate à partir d'un automate a,on alloue un mémoire pour la structure de mautomate qu'il nécessaire .dans le mautomate on ajoute l'automate,le table des matrices des états ,le table des matrices des lettres.on créer un automate abis qui est de l'état 0 à n.
-
-//?
-
-//on complète l'automate des matrices de m,calcul le dièse de mautomate de m. Puis on libère l'automate abis.renvoie le mautomate m à la fin d'exécution de cette création.
-
-
-la libération de mémoire pour le mautomate libère l'automate au début ,puis on parcourt le iterateur de matrices d'états et libère tous les matrices.en suite ,il libère le table des états et le table des lettres.à la fin,on libère l'automate a.\\
-
-
+Une fois créé, il ne nous reste plus qu'a analyser les matrices afin de déterminer si l'automate de départ est limité ou non.\\
 
 \chapter{Résolution du problème de limitedness}
 
-Dans la fonction main du fichier test\_automate.c,on crée une automate comme on veux en ajoutant des états initiaux,des états finaux et des transitions qui lient les différent états.en suites,on va tester cet automate ,regarde s'il est limite.\\
+La fonction \verb?est_limite(Automate* a, Mautomate * ma)? a besoin de l'automate ainsi que de son mautomate pour déterminer si celui-ci est limité ou pas. Seule la table \verb?t_matrices_etats? est utilisé dans la structure mautomate. En effet seule les valeurs contenues dans les matrices nous interessent. Nous utilisons l'automate pour déterminer l'intervalle des états initiaux servant dans l'analyse des matrices comme nous l'avons vu dans le chapitre X. Si la valeur minimal d'une seule de ces matrice est $\omega$ ou $\infty$, alors l'automate est limité, et cette matrice accompagné du mot qui la caractérise, est celle qui possède le coût illimité.\\
+Nous arrêtons à cette première matrice mais il en existe possiblement d'autre. Grâce à notre structure mautomate, il serait aisé d'implémenter une fonction répertoriant l'intégralité des matrices causant un coût \textit{"non-payable"}.\\
 
-Tout d'abord,on va essayer d'afficher cet automate dans un graphe visuelle,on inclue un outils pour afficher l'automate qui s'appelle  graphiz, ce outils va lire un fichier formelle qui comprendre les informations de l'automate.\\
+Le fichier test, contenant la fonction \verb?main? de notre programme effectue simplement un test avec notre automate $\Ref$. Nous créons cet automate étape par étape (transitions, états initiaux et finaux) en utilisant les fonctions implémentées par Adrien Boussicault, puis nous affichons textuellement le graphe. \\
 
-on utilise la fonction creergraphe pour créer un fichier auto.gv qui porte tous les informations formelle dépend notre automate construit au début.en utilisant ce fichier auto.gv et la commande de graphiz "dot -Tpng auto.gv -o auto.png" on obtient le graphe auto.png.on le ouvrir avec le logiciel  d'image visionneur par défaut .\\
+Nous avons également intégré un affichage graphique via graphviz. C'est un outil qui permet depuis un fichier texte \textit{".gv"}, de créer une image, du format souhaité, de l'automate décrit par le texte. Nous avons donc une fonction \verb?creergraphe(Automate* a)? qui traduit les informations de la structure \verb?Automate? en texte interprétable par graphviz.\\
+C'est le fichier auto.gv qui contient toutes ces informations. Nous créons ensuite l'image en appelant la commande de graphviz  \verb?dot -Tpng auto.gv -o auto.png?, on obtient le graphe \textit{auto.png} qu'on ouvre avec la commande \verb?xdg-open? qui va utiliser le visionneur d'image par défaut .\\
 
-en suite,la première étape pour test la limite de l'automate est la création du mautomate.on afficher la limite de l'automate avec la fonction est\_limite.s'il n'est pas limite,on retourne le premier matrice qui provoque le coût infini de cet automate.on print le mautomate a la fin.\\
+L'étape suivante est la plus longue, la création du mautomate. C'est pourquoi nous affichons le temps de calcul pour cette opération. Une fois le mautomate obtenu, la fonction \verb?est_limite(Automate* a, Mautomate * ma)? effectue l'analyse des matrices en temps linéaire puisqu'il s'agit d'un seul parcourt d'une table de hachage.\\
+Si l'automate n'est pas limité, nous l'affichons puis le programme s'arrête. Si ce n'est pas le cas, nous demandons si l'utilisateur souhaite afficher l'automate du mautomate. Celui-ci étant possiblement très gros, un affichage n'est pas forcément pertinent. Nous demandons ensuite s'il ne veut pas afficher juste les matrices, et combien il veut en afficher.\\
+
+Voici le résultat de notre programme avec l'automate $\Ref$ avec les 10 premières matrices d'affichées :
 
 
 \bibliographystyle{abbrv}
