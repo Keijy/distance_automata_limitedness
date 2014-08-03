@@ -10,6 +10,7 @@
 \usepackage{amssymb}
 \usepackage{xcolor}
 \usepackage{listings}
+\usepackage{lstautogobble}
 
 \usetikzlibrary{arrows,positioning,automata,shadows,matrix,calc}
 
@@ -44,7 +45,7 @@ Voici l'exemple d'un automate très basique qui accepte tous les mots sur l'alph
 \end{tikzpicture}
 \end{center}
 
-Pour représenter graphiquement un automate, on utilise donc un graphe orienté dans lequel les sommets du graphe sont les états de l'automate et où chaque arrête correspond à une transition de l'automate, c'est à dire à la lecture d'une lettre. Un mot est accepté par un automate $\Aut$, s'il existe un chemin dans celui-ci, partant d'un état initial et allant jusqu'à un état final en lisant les lettres une par une. Un tel chemin est appelé \textit{chemin acceptant} et l'ensemble des mots acceptés par un automate est appelé \textit{Langage}, on le note $L(\Aut)$.\\\\
+Pour représenter graphiquement un automate, on utilise donc un graphe orienté dans lequel les sommets du graphe sont les états de l'automate et où chaque arrête correspond à une transition de l'automate, c'est à dire à la lecture d'une lettre. Un mot est accepté par un automate $\Aut$, s'il existe un chemin dans celui-ci, partant d'un état initial (start) et allant jusqu'à un état final (double cercle) en lisant les lettres une par une. Un tel chemin est appelé \textit{chemin acceptant} et l'ensemble des mots acceptés par un automate est appelé \textit{Langage}, on le note $L(\Aut)$.\\ 
 Formellement, un automate est défini, par 5 ensembles, de la façon suivante :
 \begin{center}
  $ \Aut = \{ A, Q, I, F, \delta \}\ $     avec,
@@ -108,9 +109,9 @@ La décidabilité de ce problème n'est pas évidente. En effet il existe des pr
 \begin{center}
 \textit{Soit $\Aut_{1}$ et $\Aut_{2}$ deux automates à distance distincts. Est ce que le coût de $w$ dans $\Aut_{1}$ est égale au coût de $w$ dans $\Aut_{2}$, $\forall w \in L(\Aut_{1}) \cap L(\Aut_{2})$ ?}
 \end{center}
-Le travail d'Hashiguchi étant considéré comme difficile à comprendre, d'autre chercheurs, comme Simon \cite{Simon:Semigroups-Matrices-over-Tropical:1994:a} ou Leung \cite{Leung&Podolskiy:limitedness-problem-distance-automata::2004:a}, ont étudié le problème et apporté d'autres solutions sur le sujet.\\
+Le travail d'Hashiguchi étant considéré comme difficile à comprendre, d'autres chercheurs, comme Simon \cite{Simon:Semigroups-Matrices-over-Tropical:1994:a} ou Leung \cite{Leung&Podolskiy:limitedness-problem-distance-automata::2004:a}, ont étudié le problème et apporté d'autres solutions sur le sujet.\\
 
-Notre travail a donc consisté, dans un premier temps, à lire et comprendre les différents travaux de ces chercheurs afin d'être capable d'implémenter un algorithme permettant la détection de limite dans un automate à distance.
+Notre travail a donc consisté, dans un premier temps, à lire et comprendre les différents travaux de ces chercheurs afin d'être capable d'implémenter un algorithme permettant la détection de limites dans un automate à distance.
 
 \part{Mise en place théorique de l'algorithme}
 
@@ -208,7 +209,7 @@ Ces matrices sont donc définies sur $\{\N \cup \infty\}$, nous les appellerons 
 
 Avant d'aller plus loin il est nécessaire de définir la structure algébrique qui est au cœur de l'algorithme de résolution du problème de limitedness, les semi-anneaux.\\
 Un semi-anneau est formé d'un ensemble $E$ muni de deux lois associatives, $\oplus$ et $\otimes$, et d'un élément neutre pour chaque loi. De plus, la première loi est commutative et la seconde est distributive sur la première.\\
-Exemple : Les entiers naturels, munis de l'addition et de la multiplication, forment un semi-anneau : $\{ \N,\;+,\;* \}$. Les éléments neutres sont 0 pour l'addition et 1 pour la multiplication. Ces deux lois sont bien associative, l'addition est commutative et la multiplication est distributive sur l'addition. On remarque que la multiplication est également commutative, on dit que $\N$ est un semi-anneau commutatif.\\
+Exemple : Les entiers naturels, munis de l'addition et de la multiplication, forment un semi-anneau : $\{ \N,\;+,\;* \}$. Les éléments neutres sont 0 pour l'addition et 1 pour la multiplication. Ces deux lois sont bien associatives, l'addition est commutative et la multiplication est distributive sur l'addition. On remarque que la multiplication est également commutative, on dit que $\N$ est un semi-anneau commutatif.\\
 
 Cette structure va nous servir pour définir la multiplication de deux matrices de coûts. Le premier semi-anneau que nous allons définir est celui formé par l'ensemble $\{\N \cup \infty\}$ tel que :
 \begin{itemize}
@@ -238,7 +239,7 @@ On peut donc dire que $cost(ab) = M(ab)_{(1,2)} = 0$ et il s'obtient en partant 
 Cela ne nous permet cependant pas de déterminer si l'automate est limité ou pas. En effet deux facteurs rendent le nombre de matrices infini : l'ensemble de définition des matrices $\{\N \cup \infty\}$ et le nombre de mots acceptés par l'automate qui est lui aussi infini.
 \chapter{Matrices idempotentes}
 
-Dans ce chapitre, nous allons faire évoluer nos matrices afin de rendre leur nombre limité. Tout d'abord, il est nécessaire de modifier le semi-anneaux qui est défini sur un ensemble infini. Dans le problème de limite, la valeur du coût en elle-même n'a pas vraiment d'utilité. Ce qui nous intéresse, c'est de savoir si cette valeur est fixe ou si elle va croître avec la longueur du mot. Si elle croît, ce signifie qu'il existe une boucle dans l'automate dont le poids est strictement supérieur à 0.\\
+Dans ce chapitre, nous allons faire évoluer nos matrices afin de rendre leur nombre limité. Tout d'abord, il est nécessaire de modifier le semi-anneau qui est défini sur un ensemble infini. Dans le problème de limite, la valeur du coût en elle-même n'a pas vraiment d'utilité. Ce qui nous intéresse, c'est de savoir si cette valeur est fixe ou si elle va croître avec la longueur du mot. Si elle croît, ce signifie qu'il existe une boucle dans l'automate dont le poids est strictement supérieur à 0.\\
 Nous allons donc définir un ensemble de 4 valeurs qui suffiront à représenter l'intégralité des coûts possibles : 
 \begin{itemize}
 \item $0$ qui correspond au coût gratuit
@@ -283,7 +284,7 @@ $M(aa) = M(a) \times M(a) =$
 
 On remarque que $M(aa) = M(a)$. Ce qui implique que $M(aaaa...) = M(a)$ et donc que $M(aaaa...)_{(2,2)} = M(a)_{(2,2)}=1$. \\
 Or on peut observer sur l'automate que la lecture répétée de la lettre $a$ en bouclant sur l'état 2 va causer un coût croissant dépendant du nombre de $a$ lus. \\\\
-Pour distinguer ce genre de coût de ceux qui ne causent pas ce problème de croissance infinie, il faut donc ajouter un traitement supplémentaire aux matrices dont la multiplication avec elles-même dans R donne la même matrice. On appelle ces matrices des matrices idempotentes.\\\\
+Pour distinguer ce genre de coût de ceux qui ne causent pas ce problème de croissance infinie, il faut donc ajouter un traitement supplémentaire aux matrices dont la multiplication avec elles-même dans $\R$	 donne la même matrice. On appelle ces matrices des matrices idempotentes.\\\\
 Le dernier chapitre de cette partie théorique va donc consister à la détection des coûts instables dans les matrices idempotentes.
 
 \chapter{Matrices stables}
@@ -396,7 +397,7 @@ $ $\\
 Le nom et le type des variables permettent très facilement de comprendre chaque élément de ces structures. 
 
 Un automate est donc composé de quatre ensembles, \verb?etats?, \verb?alphabet?, \verb?initiaux? et \verb?finaux? et d'une table de hachage contenant les transitions. Les clés de cette table sont décrites dans la structure \verb?Cle? qui contient trois entiers explicites, \verb?origine?, \verb?lettre? et \verb?cout?.\\
-Dans la table \verb?transitions?, chaque clé est donc associé à un ensemble qui correspond aux état destination de la transition décrite par les valeurs de la clé. La variable \verb?cout? de la structure \verb?Cle? est la seule variable de structure que nous avons ajouté par rapport au code d'origine. Ensuite, il a fallu modifier toutes les fonctions de modification des automates pour qu'elles prennent en charge la gestion des coûts des transitions.\\
+Dans la table \verb?transitions?, chaque clé est donc associé à un ensemble qui correspond aux états destination de la transition décrite par les valeurs de la clé. La variable \verb?cout? de la structure \verb?Cle? est la seule variable de structure que nous avons ajouté par rapport au code d'origine. Ensuite, il a fallu modifier toutes les fonctions de modification des automates pour qu'elles prennent en charge la gestion des coûts des transitions.\\
 Nous avons également ajouté un accesseur pour cette variable et modifier l'affichage des automate pour que celui-ci soit plus clair.\\
 
 Voici notre automate référence $\Ref$ affiché grâce à la fonction
@@ -442,12 +443,12 @@ struct _Matrice {
 };
 \end{lstlisting}
 $ $\\\\
-On construit ensuite la matrice avec la fonction \verb?creer_matrice(int taille)?. Toutes les matrices sont de la forme carrée $n \times n$ , avec n le nombre d'états de l'automate. C'est pourquoi la taille de la matrice est contenue dans une seule variable. La matrice contient également le mot correspondant à la lecture de la matrice ainsi qu'un tableau à deux dimensions du type int. On alloue alors la mémoire pour la structure de la matrice puis pour le tableau.\\
+On construit ensuite la matrice avec la fonction \verb?creer_matrice(int taille)?. Toutes les matrices sont de la forme carrée $n \times n$ , avec $n$ le nombre d'états de l'automate. C'est pourquoi la taille de la matrice est contenue dans une seule variable. La matrice contient également le mot correspondant à la lecture de la matrice ainsi qu'un tableau à deux dimensions du type int. On alloue alors la mémoire pour la structure de la matrice puis pour le tableau.\\
 
-Pour la destruction, on libère les structures dans l'ordre inverse avec lequel on les à alloué. Sont également présents, trois accesseurs pour chacune des variables de la structure ainsi qu'une fonction d'affichage prenant en compte $\omega$ et $\infty$ que nous avons défini respectivement à $2$ et $3$, comme variables globales, dans \textit{"Matrice.h"}.
+Pour la destruction, on libère les structures dans l'ordre inverse avec lequel on les a alloué. Sont également présents, trois accesseurs pour chacune des variables de la structure ainsi qu'une fonction d'affichage prenant en compte $\omega$ et $\infty$ que nous avons défini respectivement à $2$ et $3$, comme variables globales, dans \textit{"Matrice.h"}.
 
 On observe que dans notre structure \verb?Matrice? la variable \verb?mot? est de type \verb?tree?, c'est une structure que nous avons implémenté dans \textit{"arbresynthaxique.c"} afin de manipuler facilement et efficacement les mots d'une matrice.\\
-En effet, nous avions débuté notre code par une simple structure \verb?char? pour contenir les mots, mais celle-ci s'est révélée bien peu efficace lorsque qu'il a fallu calculer une matrice dièse ou simplement pour la multiplication de deux matrices. \\\\
+En effet, nous avions débuté notre code par une simple structure \verb?char*? pour contenir les mots, mais celle-ci s'est révélée bien peu efficace lorsque qu'il a fallu calculer une matrice dièse ou simplement pour la multiplication de deux matrices. \\\\
 Avec cette structure \verb?tree?, nous représentons les mots sous forme d'arbres avec trois types de sommets différents :
 \begin{itemize}
 \item Une lettre de l'alphabet de l'automate qui est un sommet avec aucun fils
@@ -478,8 +479,8 @@ Grâce à ce module, nous avons maintenant les éléments nécessaires pour mani
 \chapter{Structure de stockage des matrices}
 
 
-Le nombre de matrice calculé étant potentiellement très grand, il nous a donc fallu réfléchir à une méthode permettant un calcul optimisé de l'intégralité des matrice de l'automate. C'est à dire qu'il faut organiser les matrice de sorte qu'on sache quelles sont celles qui reste à calculer et éviter de calculer une même matrice plusieurs fois. \\\\
-La structure que nous avons choisis n'est autre qu'un automate... Son fonctionnement n'est pas évident mais cette nouvelle structure va simplifier grandement l'algorithme, notamment la condition d'arrêt qui signifie que toute les matrices ont bien été calculée.\\
+Le nombre de matrices calculé étant potentiellement très grand, il nous a donc fallu réfléchir à une méthode permettant un calcul optimisé de l'intégralité des matrice de l'automate. C'est à dire qu'il faut organiser les matrices de sorte qu'on sache quelles sont celles qui reste à calculer et éviter de calculer une même matrice plusieurs fois. \\\\
+La structure que nous avons choisis n'est autre qu'un automate... Son fonctionnement n'est pas évident mais cette nouvelle structure va simplifier grandement l'algorithme, notamment la condition d'arrêt qui signifie que toute les matrices ont bien été calculées.\\
 Nous avons appelé cet automate particulier un \textit{"mautomate"} car c'est simplement un automate qui contient des matrices. Mais avant de présenter le code de cette structure, nous allons expliquer comment celle-ci est pensée. Pour cela nous allons reprendre notre automate $\Ref$ :\\\\
 
 \begin{center}
@@ -512,7 +513,7 @@ Dans un premier temps, nous allons créer un état initial qui sera le départ d
 \end{center}
 $\ $\\
 
-L'alphabet sera le même que l'automate sur lequel on travail, ici ${a,\;b}$. Depuis l'état initial, nous allons créer une transition pour chaque lettre de cet alphabet. La destination de ces transitions sera la matrice correspondant à la lettre de la transition. Pour $\Ref$ cela nous donne l'automate suivant :
+L'alphabet sera le même que l'automate sur lequel on travail, ici $\{a,\;b\}$. Depuis l'état initial, nous allons créer une transition pour chaque lettre de cet alphabet. La destination de ces transitions sera la matrice correspondant à la lettre de la transition. Pour $\Ref$ cela nous donne l'automate suivant :
 
 \begin{center}
 \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto]
@@ -549,7 +550,7 @@ Voyons ce que cela donne pour l'état $M(b)$ :
 \end{center}
 $\ $\\
  
-Pour $M(a)$ le traitement n'est pas le même. En effet nous avons vu dans le chapitre X que la matrice $M(a)$ était idempotente. Cela signifie tout d'abord qu'il va y avoir une boucle sur l'état $M(a)$ pour la lettre $a$. Mais cela signifie également, comme nous l'avons vu dans le chapitre X, que nous allons devoir calculer la matrice $M(a^{\#})$. Deux cas sont possibles : si $M(a^{\#}) = M(a)$ alors la boucle suffit. Mais si ce n'est pas le cas, il fait alors traiter $a^{\#}$ comme une nouvelle lettre de l'automate et recompléter en conséquence : 
+Pour $M(a)$ le traitement n'est pas le même. En effet nous avons vu dans le chapitre 3 que la matrice $M(a)$ était idempotente. Cela signifie tout d'abord qu'il va y avoir une boucle sur l'état $M(a)$ pour la lettre $a$. Mais cela signifie également, comme nous l'avons vu dans le chapitre 4, que nous allons devoir calculer la matrice $M(a^{\#})$. Deux cas sont possibles : si $M(a^{\#}) = M(a)$ alors la boucle suffit. Mais si ce n'est pas le cas, il fait alors traiter $a^{\#}$ comme une nouvelle lettre de l'automate et recompléter en conséquence : 
 
 \begin{center}
 \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto]
@@ -588,20 +589,19 @@ struct _Matrice_Automate{
 \end{lstlisting}
 $ $\\\\
 
-Il y a donc un automate et deux table de hachage : \verb?t_matrices_etats? qui stock l'intégralité des matrices calculées et dont la clé correspond à l'état de l'automate qui la contient.La seconde table de hachage, \verb?t_matrices_lettres?, stock également des matrices mais seulement celles qui correspondent à une lettre et la clé est donc cette même lettre. Cette table permet d’accéder facilement aux matrices de base lors du calcul de nouvelles matrice pour chaque transition.
-La structure de matrice automate inclut un automate,une tabs qui contient les états,une table qui contient les lettres.\\
+Il y a donc un automate et deux table de hachage : \verb?t_matrices_etats? qui stock l'intégralité des matrices calculées et dont la clé correspond à l'état de l'automate qui la contient.La seconde table de hachage, \verb?t_matrices_lettres?, stock également des matrices mais seulement celles qui correspondent à une lettre et la clé est donc cette même lettre. Cette table permet d’accéder facilement aux matrices de base lors du calcul de nouvelles matrices pour chaque transition.\\
 
 Ainsi, n'avons plus qu'à créer un mautomate à partir de l'automate, puis analyser chacune des matrices afin de détecter si l'une d'elle cause un coût $\omega$, c'est-à-dire un coup non-borné.
 \\\\
 Notre fonction de création, \verb?creer_mautomate(Automate* a)?, alloue la mémoire nécessaire à la structure et effectue également chacune des étapes pour obtenir le mautomate complet à la sortie de la fonction.\\
 Nous appelons donc \verb?completer_automate_des_matrices(Mautomate* a)? après l'allocation. Elle fait toutes les multiplications matricielles pour l'alphabet de l'automate et ce, sans s'occuper des matrices idempotentes et donc des dièses. En effet, c'est \verb?void calculer_diese_mautotmate(Mautomate * ma)? qui effectue ce travail, c'est la seconde fonction appliquée lors de la création. \\
-Celle-ci parcourt l'intégralité du mautomate à la recherche de matrices idempotentes afin de calculer les matrices dièses correspondantes. Comme nous l'avons vu ce calcul peut générer une nouvelle lettre dans l'alphabet du mautomate. C'est pourquoi dans ce cas la, il est nécessaire d'appeler à nouveau la fonction précédente pour compléter le mautomate. On alterne ainsi les appels de ces fonction jusqu'à ce que l'automate soit complet, avec l'intégralité des matrices de transition.\\
+Celle-ci parcourt l'intégralité du mautomate à la recherche de matrices idempotentes afin de calculer les matrices dièses correspondantes. Comme nous l'avons vu ce calcul peut générer une nouvelle lettre dans l'alphabet du mautomate. C'est pourquoi dans ce cas la, il est nécessaire d'appeler à nouveau la fonction précédente pour compléter le mautomate. On alterne ainsi les appels de ces deux fonction jusqu'à ce que l'automate soit complet, avec l'intégralité des matrices de transition.\\
 
 Une fois créé, il ne nous reste plus qu'a analyser les matrices afin de déterminer si l'automate de départ est limité ou non.\\
 
 \chapter{Résolution du problème de limitedness}
 
-La fonction \verb?est_limite(Automate* a, Mautomate * ma)? a besoin de l'automate ainsi que de son mautomate pour déterminer si celui-ci est limité ou pas. Seule la table \verb?t_matrices_etats? est utilisé dans la structure mautomate. En effet seule les valeurs contenues dans les matrices nous interessent. Nous utilisons l'automate pour déterminer l'intervalle des états initiaux servant dans l'analyse des matrices comme nous l'avons vu dans le chapitre X. Si la valeur minimal d'une seule de ces matrice est $\omega$ ou $\infty$, alors l'automate est limité, et cette matrice accompagné du mot qui la caractérise, est celle qui possède le coût illimité.\\
+La fonction \verb?est_limite(Automate* a, Mautomate * ma)? a besoin de l'automate ainsi que de son mautomate pour déterminer si celui-ci est limité ou pas. Seule la table \verb?t_matrices_etats? est utilisée dans la structure mautomate. En effet seule les valeurs contenues dans les matrices nous interessent. Nous utilisons l'automate pour déterminer l'intersection des états initiaux et finaux servant dans l'analyse des matrices comme nous l'avons vu dans le chapitre 2. Si la valeur minimale d'une seule de ces matrice est $\omega$ ou $\infty$, alors l'automate n'est pas limité, et cette matrice accompagné du mot qui la caractérise, est celle qui possède le coût illimité.\\
 Nous arrêtons à cette première matrice mais il en existe possiblement d'autre. Grâce à notre structure mautomate, il serait aisé d'implémenter une fonction répertoriant l'intégralité des matrices causant un coût \textit{"non-payable"}.\\
 
 Le fichier test, contenant la fonction \verb?main? de notre programme effectue simplement un test avec notre automate $\Ref$. Nous créons cet automate étape par étape (transitions, états initiaux et finaux) en utilisant les fonctions implémentées par Adrien Boussicault, puis nous affichons textuellement le graphe. \\
@@ -612,8 +612,27 @@ C'est le fichier auto.gv qui contient toutes ces informations. Nous créons ensu
 L'étape suivante est la plus longue, la création du mautomate. C'est pourquoi nous affichons le temps de calcul pour cette opération. Une fois le mautomate obtenu, la fonction \verb?est_limite(Automate* a, Mautomate * ma)? effectue l'analyse des matrices en temps linéaire puisqu'il s'agit d'un seul parcourt d'une table de hachage.\\
 Si l'automate n'est pas limité, nous l'affichons puis le programme s'arrête. Si ce n'est pas le cas, nous demandons si l'utilisateur souhaite afficher l'automate du mautomate. Celui-ci étant possiblement très gros, un affichage n'est pas forcément pertinent. Nous demandons ensuite s'il ne veut pas afficher juste les matrices, et combien il veut en afficher.\\
 
-Voici le résultat de notre programme avec l'automate $\Ref$ avec les 10 premières matrices d'affichées :
+Pour notre automate $\Ref$, notre algorithme met environ 6 secondes à calculer l'intégralité des matrices. Nous avons également corrigé plusieurs problèmes de fuite mémoire et nous avons réussi à obtenir un programme qui se termine sans aucune fuite mémoire :\\
 
+\begin{lstlisting}[frame=single]
+==3769== 
+==3769== HEAP SUMMARY:
+==3769==     in use at exit: 0 bytes in 0 blocks
+==3769==   total heap usage: 197,901 allocs, 197,901 
+	frees, 7,434,504 bytes allocated
+==3769== 
+==3769== All heap blocks were freed -- no leaks are 
+	possible
+==3769== 
+==3769== For counts of detected and suppressed errors, 
+	rerun with: -v
+==3769== ERROR SUMMARY: 0 errors from 0 contexts 
+	(suppressed: 1 from 1)
+\end{lstlisting}
+$ $\\\\
+
+Nous avons grandement approfondi nos connaissances dans le domaine des automates et dans la réalisation d'un rapport poussé.\\
+Le stage s'est donc déroulé en deux étapes, la première partie, a consisté à comprendre la profondeur et la complexité du problème ainsi que sa solution. Lors de la seconde partie, l'implémentation de l'algorithme, nous avons du réfléchir aux structures qui seraient le plus efficaces pour effectuer le travail demandé. Ensuite il ne reste qu'à appliquer la partie théorique dans les fonctions.\\
 
 \bibliographystyle{abbrv}
 \bibliography{limitedness}
