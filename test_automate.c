@@ -133,12 +133,12 @@ int main(){
   ajouter_etat_final(a, 2);
   ajouter_etat_final(a, 3);
 
-  creergraphe(a);
   print_automate(a);
-  printf("Voulez vous voir le graphe de cet automate? (y/n) *il faut insatller le graphviz avant l'afficher*\n");
+  printf("Voulez vous voir le graphe de cet automate? (y/n) *Graphviz nécessaire*\n");
   char entree;
   scanf("%c", &entree);
   if(entree == 'y'){
+    creergraphe(a);
     system("dot -Tpng auto.gv -o auto.png");
     system("xdg-open auto.png &");  //open avec le logiciel par default
     /* system("firefox auto.png >/dev/null 2>&1 &"); */  //open avec firefox
